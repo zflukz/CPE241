@@ -1,10 +1,11 @@
 // src/components/Navbar.tsx
 import React, { useState } from "react";
-import { FaPlane, FaChartPie, FaDatabase, FaArrowsAltH, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
-import { GiChickenOven } from 'react-icons/gi'; // Chicken logo placeholder
+import { IoMdAirplane, IoIosLogOut  } from "react-icons/io";
+import { BiSolidCoupon, BiSolidReport } from "react-icons/bi";
+import { HiMiniUserGroup, HiUserCircle  } from "react-icons/hi2";
+import { AiFillPieChart } from "react-icons/ai";
 
 const Navbar: React.FC = () => {
-  // Track if sidebar is hovered (expanded) or not (collapsed)
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -16,20 +17,20 @@ const Navbar: React.FC = () => {
     >
       {/* Icon 1: Placeholder for Chicken Logo */}
       <div className="w-max flex">
-        <img src="images/logo/logo.png" width={50} alt="" className="animate-spin"/>
+        <img src="images/logo/logo.png" width={50} alt=""/>
         {isExpanded && <h2 className="text-xl font-bold mt-2 ml-2">OakAirline</h2>}
       </div>
 
       {/* Dashboard Section */}
       <div className="mt-8 text-black">
         {isExpanded && <h3 className="text-sm font-semibold">Dashboards</h3>}
-        <div className="space-y-4 mt-4">
-          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-            <FaChartPie />
+        <div className="space-y-4 ">
+          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "mt-4 hover:bg-[#D4D4D4] transition-colors duration-500" : ""}`}>
+            <AiFillPieChart />
             {isExpanded && <span>Default</span>}
           </div>
-          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-            <FaDatabase />
+          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
+            <BiSolidReport />
             {isExpanded && <span>Reports & Analytics</span>}
           </div>
         </div>
@@ -38,30 +39,30 @@ const Navbar: React.FC = () => {
       {/* Pages Section */}
       <div className="mt-8">
         {isExpanded && <h3 className="text-sm font-semibold">Pages</h3>}
-        <div className="space-y-4 mt-4">
-          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-            <FaPlane />
+        <div className="space-y-4">
+          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "mt-4 hover:bg-[#D4D4D4] transition-colors duration-500" : ""}`}>
+            <IoMdAirplane />
             {isExpanded && <span>Manage Flights</span>}
           </div>
-          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-            <FaArrowsAltH />
+          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
+            <BiSolidCoupon />
             {isExpanded && <span>Manage Booking</span>}
           </div>
-          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-            <FaUserCircle />
+          <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
+            <HiMiniUserGroup />
             {isExpanded && <span>User Management</span>}
           </div>
         </div>
       </div>
 
       {/* User Mode */}
-      <div className="mt-auto space-y-4">
-        <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-          <FaSignOutAlt />
-          {isExpanded && <span>Switch to User Mode</span>}
+      <div className="">
+        <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg bg-gray-100 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500 px-12" : ""}`}>
+          <HiUserCircle />
+          {isExpanded && <span>SaMuii72</span>}
         </div>
-        <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-          <FaSignOutAlt />
+        <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg border-2 mt-4 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500 px-12" : ""}`}>
+          <IoIosLogOut />
           {isExpanded && <span>Logout</span>}
         </div>
       </div>
