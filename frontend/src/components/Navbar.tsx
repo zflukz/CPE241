@@ -26,11 +26,11 @@ const Navbar: React.FC = () => {
         {isExpanded && <h3 className="text-sm font-semibold">Dashboards</h3>}
         <div className="space-y-4 ">
           <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "mt-4 hover:bg-[#D4D4D4] transition-colors duration-500" : ""}`}>
-            <AiFillPieChart />
+            <AiFillPieChart className="text-[22px]"/>
             {isExpanded && <span>Default</span>}
           </div>
           <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-            <BiSolidReport />
+            <BiSolidReport className="text-[22px]"/>
             {isExpanded && <span>Reports & Analytics</span>}
           </div>
         </div>
@@ -41,15 +41,15 @@ const Navbar: React.FC = () => {
         {isExpanded && <h3 className="text-sm font-semibold">Pages</h3>}
         <div className="space-y-4">
           <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "mt-4 hover:bg-[#D4D4D4] transition-colors duration-500" : ""}`}>
-            <IoMdAirplane />
+            <IoMdAirplane className="text-[22px]" />
             {isExpanded && <span>Manage Flights</span>}
           </div>
           <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-            <BiSolidCoupon />
+            <BiSolidCoupon className="text-[22px]"/>
             {isExpanded && <span>Manage Booking</span>}
           </div>
           <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg px-4 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500" : ""}`}>
-            <HiMiniUserGroup />
+            <HiMiniUserGroup className="text-[22px]"/>
             {isExpanded && <span>User Management</span>}
           </div>
         </div>
@@ -57,12 +57,12 @@ const Navbar: React.FC = () => {
 
       {/* User Mode */}
       <div className="">
-        <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg bg-gray-100 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500 px-12" : ""}`}>
-          <HiUserCircle />
+        <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg bg-gray-100 ${isExpanded ? "hover:bg-[#D4D4D4] transition-colors duration-500 px-12" : ""}`}>
+          <HiUserCircle className="text-[22px]"/>
           {isExpanded && <span>SaMuii72</span>}
         </div>
-        <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg border-2 mt-4 ${isExpanded ? "hover:bg-[#D4D4D4] duration-500 px-12" : ""}`}>
-          <IoIosLogOut />
+        <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg border-2 mt-4 ${isExpanded ? "hover:bg-[#D4D4D4] transition-colors duration-500 px-12" : ""}`}>
+          <IoIosLogOut className="text-[22px]"/>
           {isExpanded && <span>Logout</span>}
         </div>
       </div>

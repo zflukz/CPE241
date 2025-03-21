@@ -1,15 +1,18 @@
 // src/App.tsx
 import React from "react";
-import Navbar from "./components/Navbar";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import ContentPage from "./pages/ContentPage";
 
 const App: React.FC = () => {
   return (
-    <div className="flex">
-      <Navbar />
-      <div className="flex-grow bg-gray-100 p-6">
-        <h1 className="text-3xl font-bold">Your Content Here</h1>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/content" element={<ContentPage />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Router>
   );
 };
 
