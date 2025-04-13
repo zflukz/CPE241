@@ -7,11 +7,32 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    console.log('Login form submitted:', { email, password, rememberMe });
     e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      }); 
+      
+      console.log(JSON.stringify({ email, password }));
+      if (!response.ok) {
+        alert('Login failed. Please check your credentials.');
+        throw new Error('Network response was not ok');
+      }
+      
+      const data = await response.json();
+      console.log('Login successful:', data);
+      navigate('/content');
+    }
     // Add your login logic here (e.g., API call)
-    console.log('Login Submitted', { email, password, rememberMe });
-    navigate('/content');
+    catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
   return (

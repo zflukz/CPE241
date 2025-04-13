@@ -11,7 +11,7 @@ const db = mysql.createConnection({
   host: "localhost", // Database container name
   user: "root", 
   password: "password", // Password from docker-compose.yml
-  database: "mydatabase", // Database name
+  database: "OakFlight", // Database name
   port: 3306,
 });
  
@@ -41,9 +41,30 @@ app.post("/add-data", (req, res) => {
   });
 });
 
+app.post("/login", (req, res) => {
+  const { email, password } = req.body; // Destructure username and password from request body
+  
+  // SQL query to check if the user exists with the provided username and password
+  const query = "SELECT * FROM Users WHERE email = ? AND password = ?";
+  db.query(query, [email, password], (err, results) => {
+    if (err) {
+      console.error("Error executing query: " + err);
+      return res.status(500).send("Internal server error");
+    }
+
+    if (results.length > 0) {
+      // User found
+      res.json({ message: "Login successful" });
+    } else {
+      // User not found
+      res.status(401).json({ message: "Invalid username or password" });
+    }
+  });
+});
+
 // API route to fetch all users
 app.get("/users", (req, res) => {
-  const query = "SELECT * FROM users";
+  const query = "SELECT * FROM Users";
 
   db.query(query, (err, results) => {
     if (err) {

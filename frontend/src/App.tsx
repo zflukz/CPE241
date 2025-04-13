@@ -3,6 +3,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import ContentPage from "./pages/ContentPage";
+import BookingHistory from "./pages/BookingHistory";
+import FlightSearch from "./pages/FSearch";
+import SearchResults from "./pages/Search";
 
 const App: React.FC = () => {
   return (
@@ -10,6 +13,8 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/content" element={<ContentPage />} />
+        <Route path="/search" element={<SearchResults />} />
+        <Route path="/booking-history" element={<BookingHistory />} />    
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
