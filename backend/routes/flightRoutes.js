@@ -5,7 +5,7 @@ const flightController = require('../controllers/flightController');
 router.post('/', flightController.createFlight);
 router.get('/', flightController.getFlights);
 router.get('/search', flightController.searchFlight);
-router.delete('/:flightID',flightController.deleteFlightByID);
+//router.delete('/:flightID',flightController.deleteFlightByID);
 
 module.exports = router;
 
