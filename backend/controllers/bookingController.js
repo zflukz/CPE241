@@ -3,6 +3,8 @@ exports.createBooking = async (req, res) => {
     const { userID, flightID, passengers } = req.body;
     const bookingDate = new Date();
   
+
+  exports.createBooking = async (req,res) => {
     try {
       // 1. สร้าง Booking
       const query1 = `
@@ -32,5 +34,22 @@ exports.createBooking = async (req, res) => {
       console.error(err);
       res.status(500).json({ message: 'เกิดข้อผิดพลาดในการจองเที่ยวบิน' });
     }
-  };
+  }
+};
+
+
+
+
+
+exports.getBooking = async (req , res)=>{
+  try{
+    const bookings = await bookingModels.getBooking();
+    res.status(200).json(bookings);
+  }
+  catch(err){
+    res.status(500).json({ error : 'Error fetching bookings'});
+  }
+};
+
+
   

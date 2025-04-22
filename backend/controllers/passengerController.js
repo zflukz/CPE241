@@ -3,20 +3,20 @@ const passengerModel = require('../models/passengerModel');
 
 
 
-exports.createPassenger = async (req, res) => {
-  const { userID, ...passengerData } = req.body;
+// exports.createPassenger = async (req, res) => {
+//   const { userID, ...passengerData } = req.body;
 
-  try {
-    const result = await passengerModel.createPassenger(userID, passengerData);
-    res.status(201).json({
-      message: 'Passenger created successfully',
-      passengerID: result.passengerID
-    });
-  } catch (err) {
-    console.error('Error creating passenger:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
+//   try {
+//     const result = await passengerModel.createPassenger(userID, passengerData);
+//     res.status(201).json({
+//       message: 'Passenger created successfully',
+//       passengerID: result.passengerID
+//     });
+//   } catch (err) {
+//     console.error('Error creating passenger:', err);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
 
 
 exports.createPassenger = async (req, res) => {

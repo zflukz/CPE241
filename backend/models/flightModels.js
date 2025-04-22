@@ -25,3 +25,19 @@ exports.getFlights = async () => {
   const [rows] = await db.execute(`SELECT * FROM Flights`);
   return rows;
 };
+
+exports.searchFlightsByRoute = async (db,source , destination) =>{
+  const [rows] = await db.query(
+    
+    `SELECT * FROM Flights F
+    JOIN Airport as A ON F.source = A.airportID
+    WHERE F.source = ? AND F.destination = ?`,
+    [soruce, destination]
+  );
+  return rows;
+}
+
+exports.deleteFlightByID = async (flightID, callback) =>{
+  const query = 'DELETE FROM Flights WHERE flightID = ?';
+  db.query(query, [flightID], callback);
+};
