@@ -53,7 +53,7 @@ exports.deleteUserByID = async (userID, callback) =>{
 
 exports.getPassengerByUserID = async (db , userID)=>{
   const [rows] = await db.execute(
-    `SELECT p.* FROM Passenger p
+    `SELECT p.* FROM Passengers p
     JOIN UserPassengers up ON p.passengerID = up.passengerID
     WHERE up.userID = ?`,[userID]);
     return rows;
@@ -61,7 +61,7 @@ exports.getPassengerByUserID = async (db , userID)=>{
 
 exports.getBookingByUserID = async (db, userID)=>{
   const [rows] = await db.execute(
-    `SELECT b.* , f.label AS flightLabel, f.departTime, f.arrivalTime FROM Booking b
+    `SELECT b.* , f.label AS flightLabel, f.departTime, f.arrivalTime FROM Bookings b
     JOIN Flights f ON b.flightID = f.flightID
     WHERE b.userID = ?
     ORDER BY b.bookingDate DESC`,[userID]);
