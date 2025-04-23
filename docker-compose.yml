@@ -31,8 +31,8 @@ services:
       - mysql_data:/var/lib/mysql
       - ./mysql-dumps:/mysql-dumps  # Store and retrieve dumps from host
       - ./mysql-setup:/mysql-setup
-      - ./mysql-setup/custom-entry.sh:/usr/local/bin/custom-entry.sh
-    entrypoint: ["/usr/local/bin/custom-entry.sh"]
+    #   - ./mysql-setup/custom-entry.sh:/usr/local/bin/custom-entry.sh
+    # entrypoint: ["/usr/local/bin/custom-entry.sh"]
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

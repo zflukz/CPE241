@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import ContentPage from "./pages/ContentPage";
 import BookingHistory from "./pages/BookingHistory";
 import FlightSearch from "./pages/FSearch";
+import HompPage from "./pages/Homepage"
 import SearchResults from "./pages/Search";
 
 const App: React.FC = () => {
@@ -15,6 +16,7 @@ const App: React.FC = () => {
         <Route path="/content" element={<ContentPage />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/booking-history" element={<BookingHistory />} />    
+        <Route path="/Home" element={<HompPage />} />    
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
