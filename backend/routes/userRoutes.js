@@ -11,6 +11,8 @@ router.post('/login', userController.loginUser);
 
 router.delete('/:id' , userController.deleteUser);
 
+router.put('/reset-password',userController.putNewPassword);
+
 
 
 // GET passenger ทั้งหมด ของ user 

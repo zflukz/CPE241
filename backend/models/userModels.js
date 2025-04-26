@@ -17,7 +17,7 @@ exports.getUsers = async () => {
   return rows;
 };
 
-
+// ผู้ใช้สามารถเข้าสู่ระบบด้วยอีเมลและรหัสผ่าน 
 exports.insertUser = async (db, userData) => {
     const query = `
       INSERT INTO Users (username, password, email, role)
@@ -32,13 +32,13 @@ exports.insertUser = async (db, userData) => {
   
     return results.insertId;
   };
-  
-exports.getUserByUsernameAndPassword = async (db, username, password) => {
+  // ผู้ใช้สามารถเข้าสู่ระบบด้วยอีเมลและรหัสผ่าน 
+exports.getUserByUsernameAndPassword = async (db, email, password) => {
   const query = `
     SELECT * FROM Users
-    WHERE username = ? AND password = ?
+    WHERE email = ? AND password = ?
   `;
-  const [rows] = await db.query(query, [username, password]);
+  const [rows] = await db.query(query, [email, password]);
 
   return rows.length > 0 ? rows[0] : null;
 };
@@ -67,3 +67,13 @@ exports.getBookingByUserID = async (db, userID)=>{
     ORDER BY b.bookingDate DESC`,[userID]);
     return rows;
   }
+
+//ผู้ใช้สามารถกู้คืนรหัสผ่านหากลืมรหัส และสามารถเปลี่ยนรหัสผ่านได้ 
+exports.resetPassword = async (db, email, newPassword) => {
+  const query = `UPDATE Users SET password = ? WHERE email = ?`;
+  const [result] = await db.query(query, [newPassword, email]);
+
+  return result.affectedRows > 0;
+};
+  
+  

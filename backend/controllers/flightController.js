@@ -20,37 +20,113 @@ exports.getFlights = async (req, res) => {
 };
 
 
-exports.searchFlight = async (req,res)=>{
-  const {source, destination} = req.query;
+exports.searchFlightOneWay = async (req,res)=>{
+  const {source, destination, departTime} = req.query;
 
-  if(!source || !destination ){
+  if(!source || !destination || !departTime ){
     return res.status(400).json({
-      message :'ระบุเส้นทาง'
+      message :'specify source destination departTime'
     })
   }
   
   try{
-    const flights = await flightModel.findFlightsByRoute(req.db, source, destination);
-
+    const flights = await flightModel.searchFlightsByRoute(req.db, source, destination, departTime);
+    
     if(!flights || flights.length == 0){
       return res.status(404).json({
         message:'not found'
       })
     }
     res.json({
-      message:"ค้นหาเที่ยวบินสำเร็จ",
+      message:"success to get flight",
       flights,
     });
   }
   catch(err){
-    console.log("เกิดข้อผิดพลาย: ",err)
+    console.log("Error: ",err)
     res.status(500).json({
-      message : "error จากระบบ",
+      message : "Error on system",
     });
   }
   
   
 }
+
+exports.searchFlightRoundTrip = async (req,res)=>{
+  const {departTime, arrivalTime} = req.query;
+
+  if(!departTime || !arrivalTime ){
+    return res.status(400).json({
+      message :'specify departTime and arrivalTime'
+    })
+  }
+  
+  try{
+    const flights = await flightModel.searchFlightsRoundTrip(req.db, departTime, arrivalTime);
+    
+    if(!flights || flights.length == 0){
+      return res.status(404).json({
+        message:'not found'
+      })
+    }
+    res.json({
+      message:"success to get flight",
+      flights,
+    });
+  }
+  catch(err){
+    console.log("Error : ",err)
+    res.status(500).json({
+      message : "Error on system",
+    });
+  }
+  
+  
+}
+
+exports.searchByMoney = async (req,res) => {
+  const {money1, money2} = req.query;
+
+  if(!money1 || !money2 ){
+    return res.status(400).json({
+      message :'specify Money'
+    })
+  }
+  
+  try{
+    const flights = await flightModel.searchByMoney(req.db, money1, money2);
+    
+    if(!flights || flights.length == 0){
+      return res.status(404).json({
+        message:'not found'
+      })
+    }
+    res.json({
+      message:"success to get flight",
+      flights,
+    });
+  }
+  catch(err){
+    console.log("Error : ",err)
+    res.status(500).json({
+      message : "Error on system",
+    });
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 exports.deleteFlight = (req,res)=>{

@@ -26,16 +26,37 @@ exports.getFlights = async () => {
   return rows;
 };
 
-exports.searchFlightsByRoute = async (db,source , destination) =>{
+//หาเที่ยวบินจาก จุดเริ่มไปจุดหมาย + เวลาไป
+exports.searchFlightsByRoute = async (db,source , destination, departTime) =>{
   const [rows] = await db.query(
-    
     `SELECT * FROM Flights F
-    JOIN Airport as A ON F.source = A.airportID
-    WHERE F.source = ? AND F.destination = ?`,
-    [soruce, destination]
+    JOIN Airports as A ON F.source = A.airportID
+    WHERE F.source = ? AND F.destination = ? AND CAST (F.departTime as date)  = ?`,
+    [source, destination, departTime]
   );
   return rows;
 }
+// หาเที่ยวบินจากวันไปเเละกลับ
+exports.searchFlightsRoundTrip = async (db, departTime, arrivalTime) =>{
+  const [rows] = await db.query(
+    `SELECT * FROM Flights F
+    JOIN Airports as A ON F.source = A.airportID
+    WHERE CAST (F.departTime as date)  = ? AND CAST (F.arrivalTime as date)= ?`,
+    [departTime, arrivalTime]
+  );
+  return rows;
+}
+
+exports.searchByMoney = async (db, money1, money2) => {
+  const [rows] = await db.query(
+    `SELECT * FROM Flights F
+    WHERE price between ? AND ?`,
+    [money1,money2]
+  )
+  return rows;
+}
+
+
 
 exports.deleteFlightByID = async (flightID, callback) =>{
   const query = 'DELETE FROM Flights WHERE flightID = ?';

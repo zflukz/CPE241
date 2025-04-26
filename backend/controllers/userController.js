@@ -19,7 +19,7 @@ exports.getUsers = async (req, res) => {
 };
 
 
-
+// ผู้ใช้สามารถเข้าสู่ระบบด้วยอีเมลและรหัสผ่าน 
 exports.registerUser = async (req, res) => {
   const db = req.db;
   const { username, password, email, role } = req.body;
@@ -43,15 +43,15 @@ exports.registerUser = async (req, res) => {
     res.status(500).send('เกิดข้อผิดพลาดในการเพิ่มข้อมูล');
   }
 };
-
+// ผู้ใช้สามารถเข้าสู่ระบบด้วยอีเมลและรหัสผ่าน 
 exports.loginUser = async (req, res) => {
   const db = req.db;
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await userModel.getUserByUsernameAndPassword(db, username, password);
+    const user = await userModel.getUserByUsernameAndPassword(db, email, password);
 
-    if (!user) {
+    if (!email) {
       return res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
     }
 
@@ -116,5 +116,23 @@ exports.getBookings = async (req, res) => {
   } catch (err) {
     console.error('Error fetching bookings:', err);
     res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+
+// ผู้ใช้สามารถกู้คืนรหัสผ่านหากลืมรหัส และสามารถเปลี่ยนรหัสผ่านได้ 
+exports.putNewPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+  console.log(email,newPassword)
+  if (!email || !newPassword) {
+    return res.status(400).json({ message: 'Missing email or new password' });
+  }
+
+  const success = await userModel.resetPassword(req.db, email, newPassword);
+
+  if (success) {
+    res.json({ message: 'Password updated successfully' });
+  } else {
+    res.status(404).json({ message: 'Email not found' });
   }
 };

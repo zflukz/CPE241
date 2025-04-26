@@ -15,10 +15,10 @@ services:
     depends_on:
       - db
     environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: password
-      DB_NAME: mydatabase
+      DB_HOST: localhost
+      DB_USER: dev
+      DB_PASSWORD: 7815696ecbf1c96e6894b779456d330e
+      DB_NAME: chickenAirlines
 
   db:
     image: mysql:8.0
