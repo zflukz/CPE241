@@ -97,7 +97,7 @@ exports.getPassengers = async (req, res) => {
   const db = req.db;
 
   try {
-    const passengers = await userModel.getPassengersByUserID(db, userID);
+    const passengers = await userModel.getPassengerByUserID(db, userID);
     res.json(passengers);
   } catch (err) {
     console.error('Error fetching passengers:', err);
@@ -111,7 +111,7 @@ exports.getBookings = async (req, res) => {
   const db = req.db;
 
   try {
-    const bookings = await userModel.getBookingsByUserID(db, userID);
+    const bookings = await userModel.getBookingByUserID(db, userID);
     res.json(bookings);
   } catch (err) {
     console.error('Error fetching bookings:', err);
