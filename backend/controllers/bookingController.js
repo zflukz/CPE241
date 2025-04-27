@@ -1,57 +1,26 @@
-// const bookingModel = require('../models/bookingModels.js');
+const bookingModel = require('../models/bookingModels.js');
 
-// exports.createBooking = async (req, res) => {
-//     const db = req.db;
-//     const { userID, flightID, passengers } = req.body;
-//     const bookingDate = new Date();
-  
+exports.getBooking = async (req, res) => {
+  try {
+    const bookings = await bookingModel.getBooking();
+    res.status(200).json(bookings);
+  } catch (err) {
+    console.error('Error fetching bookings:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
 
-//   exports.createBooking = async (req,res) => {
-//     try {
-//       // 1. สร้าง Booking
-//       const query1 = `
-//         INSERT INTO Bookings (userID, flightID, bookingDate, bookingStatus)
-//         VALUES (?, ?, ?, 'CONFIRMED')
-//       `;
-//       await db.query(query1, [userID, flightID, bookingDate]);
-  
-//       // ดึง bookingID ล่าสุด
-//       const [latest] = await db.query(`SELECT bookingID FROM Bookings ORDER BY bookingID DESC LIMIT 1`);
-//       const bookingID = latest[0].bookingID;
-  
-//       // 2. ผูก passenger แต่ละคนกับ booking
-//       for (const p of passengers) {
-//         const { passengerID, seatNumber } = p;
-//         await db.query(
-//           `INSERT INTO BookingPassengers (bookingID, passengerID, seatNumber) VALUES (?, ?, ?)`,
-//           [bookingID, passengerID, seatNumber]
-//         );
-//       }
-  
-//       res.status(201).json({
-//         message: 'จองเที่ยวบินสำเร็จ',
-//         bookingID: bookingID
-//       });
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ message: 'เกิดข้อผิดพลาดในการจองเที่ยวบิน' });
-//     }
-//   }
-// };
+exports.createBookingWithPassengers = async (req, res) => {
+  const { userID, flightID, passengers } = req.body;
 
-
-
-
-
-// exports.getBooking = async (req , res)=>{
-//   try{
-//     const bookings = await bookingModels.getBooking();
-//     res.status(200).json(bookings);
-//   }
-//   catch(err){
-//     res.status(500).json({ error : 'Error fetching bookings'});
-//   }
-// };
-
-
-  
+  try {
+    const { bookingID } = await bookingModel.createBookingWithPassengers(userID, flightID, { passengers });
+    res.status(201).json({
+      message: 'Booking created successfully',
+      bookingID
+    });
+  } catch (err) {
+    console.error('Error creating booking:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
