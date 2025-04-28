@@ -7,7 +7,7 @@ const passengerRouter = require('./routes/passenger.js');
 const bookingRoutes = require('./routes/bookingRoutes.js')
 const passengerRoutes = require('./routes/passengerRoutes');
 const airlinesRoutes = require('./routes/airlineRoutes.js');
-
+const airportRoutes = require('./routes/airportRoutes.js');
 
 const app = express();
 
@@ -27,6 +27,7 @@ app.use('/api/passengers', passengerRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/flights', flightRoutes);
 app.use('/api/airlines' , airlinesRoutes);
+app.use('/api/airports', airportRoutes);
 
 
 
