@@ -31,6 +31,7 @@ const Login: React.FC = () => {
     }
     // Add your login logic here (e.g., API call)
     catch (error) {
+      alert('Login failed. Please check your credentials.');
       console.error('Login failed:', error);
     }
   };
