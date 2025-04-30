@@ -98,14 +98,14 @@ const Navbar: React.FC = () => {
         <div className="space-y-4 mt-2">
           <MenuItem icon={IoMdAirplane} label="Manage Flights" path="/manageflight" isExpanded={isExpanded} />
           <MenuItem icon={BiSolidCoupon} label="Manage Booking" path="/managebooking" isExpanded={isExpanded} />
-          <MenuItem icon={HiMiniUserGroup} label="User Management" path="/users" isExpanded={isExpanded} />
+          <MenuItem icon={HiMiniUserGroup} label="User Management" path="/manageuser" isExpanded={isExpanded} />
         </div>
       </div>
 
       {/* Bottom Section */}
       <div className="absolute bottom-[30px] px-[25px] w-full">
         <div className="space-y-4">
-          <MenuItem icon={HiUserCircle} label="Admin1" path="/admin" isExpanded={isExpanded} />
+          <MenuItem icon={HiUserCircle} label="Admin1" path="" isExpanded={isExpanded} />
           <MenuItem icon={HiArrowRightOnRectangle} label="Logout" path="/login" customClick={handleLogout} isExpanded={isExpanded} />
         </div>
       </div>

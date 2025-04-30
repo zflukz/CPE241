@@ -6,38 +6,33 @@ import { Pagination, PaginationContent, PaginationItem, PaginationNext, Paginati
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import Navbar from '../components/Navbar';
 import { HiPlusCircle } from "react-icons/hi";
-import { AiOutlineCheck, AiOutlineClockCircle, AiOutlineCloseCircle } from 'react-icons/ai';
 import { HiBarsArrowDown } from "react-icons/hi2";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
-import LongFlightPath from '../components/Route(long)';
 
-interface Booking {
-  flightNo: string;
-  bookingID: string;
-  numberofpassenger: string;
-  date: string;
+interface User {
+  userID: string;
   username: string;
-  status: 'Confirmed' | 'Pending' | 'Canceled';
+  email: string;
+  role: 'Customer' | 'Admin';
 }
 
-const bookings: Booking[] = [
-  { flightNo: 'TG102', bookingID: 'B001', numberofpassenger: '2', username: 'user001', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B002', numberofpassenger: '3', username: 'user002', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B003', numberofpassenger: '2', username: 'user003', date: '9 Mar 2025', status: 'Pending' },
-  { flightNo: 'TG102', bookingID: 'B004', numberofpassenger: '4', username: 'user004', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B005', numberofpassenger: '1', username: 'user005', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B006', numberofpassenger: '1', username: 'user006', date: '9 Mar 2025', status: 'Canceled' },
-  { flightNo: 'TG102', bookingID: 'B007', numberofpassenger: '3', username: 'user007', date: '9 Mar 2025', status: 'Confirmed' },
-]
-const ManageBookings = () => {
+const users: User[] = [
+  { userID: 'U001', username: 'user001', email: 'yourname@gmail.com', role: 'Customer'},
+  { userID: 'U002', username: 'user002', email: 'yourname@gmail.com', role: 'Customer'},
+  { userID: 'U003', username: 'user003', email: 'yourname@gmail.com', role: 'Admin'},
+  { userID: 'U004', username: 'user004', email: 'yourname@gmail.com', role: 'Customer'},
+  { userID: 'U005', username: 'user005', email: 'yourname@gmail.com', role: 'Customer'},
+  { userID: 'U006', username: 'user006', email: 'yourname@gmail.com', role: 'Admin'},
+  { userID: 'U007', username: 'user007', email: 'yourname@gmail.com', role: 'Customer'},
+];
+
+const ManageUsers = () => {
   return (
     <div className="flex min-h-screen font-sans">
       <Navbar />
-
-      <div className="flex-1 p-8 bg-[#FAF9F8] min-h-screen overflow-auto">
+      <div className="flex-1 p-8 bg-[#FAF9F8] overflow-auto">
         <div className="flex items-center justify-between mt-8 mb-8">
-          <h1 className="text-[24px] font-bold">Boooking List (87)</h1>
-
+          <h1 className="text-[24px] font-bold">Manage Users ({users.length})</h1>
           <div className="flex items-center gap-4">
             <div className="relative w-1/3">
               <input
@@ -47,17 +42,15 @@ const ManageBookings = () => {
               />
               <HiMiniMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#C84B2F]" />
             </div>
-
             <Button variant="outline" className='flex items-center gap-2 bg-[#FFFFFF] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C84B2F]'>
               <HiBarsArrowDown size={20} /> Filter
             </Button>
-
             <Button
               variant="outline"
               className="flex items-center gap-2 bg-[#C84B2F] text-white font-semibold border-0 hover:bg-[#C63F21] focus:ring-0"
             >
               <HiPlusCircle size={20} />
-              Add Booking
+              Add User
             </Button>
           </div>
         </div>
@@ -66,35 +59,22 @@ const ManageBookings = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">Date</TableHead>
-                <TableHead className="text-center">Flight No.</TableHead>
-                <TableHead className="text-center">Booking No.</TableHead>
-                <TableHead className="text-center">User Name</TableHead>
-                <TableHead className="text-center">Passenger</TableHead>
-                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-center">User ID</TableHead>
+                <TableHead className="text-center">Username</TableHead>
+                <TableHead className="text-center">Email</TableHead>
+                <TableHead className="text-center">Role</TableHead>
                 <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {bookings.map((booking, index) => (
+              {users.map((user, index) => (
                 <TableRow key={index}>
-                  <TableCell className="text-center">{booking.date}
-                  <LongFlightPath/>
-                  </TableCell>
-                  <TableCell className="text-center">{booking.flightNo}</TableCell>
-                  <TableCell className="text-center">{booking.bookingID}</TableCell>
-                  <TableCell className="text-center">{booking.username || '-'}</TableCell>
-                  <TableCell className="text-center">{booking.numberofpassenger}</TableCell>
+                  <TableCell className="text-center">{user.userID}</TableCell>
+                  <TableCell className="text-center">{user.username}</TableCell>
+                  <TableCell className="text-center">{user.email}</TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={
-                      booking.status === 'Confirmed' ? 'success' :
-                      booking.status === 'Pending' ? 'warning' :
-                      'destructive'
-                    }>
-                      {booking.status === 'Confirmed' && <AiOutlineCheck className="mr-2 text-green-500" />}
-                      {booking.status === 'Pending' && <AiOutlineClockCircle className="mr-2 text-yellow-500" />}
-                      {booking.status === 'Canceled' && <AiOutlineCloseCircle className="mr-2 text-red-500" />}
-                      {booking.status}
+				  <Badge variant={user.role === 'Admin' ? 'success' : 'default'}>
+                      {user.role}
                     </Badge>
                   </TableCell>
                   <TableCell className="flex gap-2 justify-center">
@@ -109,7 +89,7 @@ const ManageBookings = () => {
         </div>
 
         <div className="flex items-center justify-between mt-6">
-          <div className="text-sm text-gray-600">Rows per page: 3</div>
+          <div className="text-sm text-gray-600">Rows per page: 7</div>
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -126,4 +106,4 @@ const ManageBookings = () => {
   );
 };
 
-export default ManageBookings;
+export default ManageUsers;

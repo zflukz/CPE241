@@ -6,6 +6,7 @@ import ContentPage from "./pages/ContentPage";
 import ReservationPage from "./pages/ReservationPage";
 import ManageFlightPage from "./pages/ManageFlight";
 import ManageBookings from "./pages/ManageBooking";
+import ManageUsers from "./pages/ManageUser";
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
         <Route path="/content" element={<ContentPage />} />
         <Route path="/manageflight" element={<ManageFlightPage/>} /> 
         <Route path='/managebooking' element={<ManageBookings/>} /> 
+        <Route path='/manageuser' element={<ManageUsers/>} /> 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
