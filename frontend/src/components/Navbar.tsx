@@ -35,7 +35,6 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
-
       {/* Pages Section */}
       <div className="mt-8">
         {isExpanded && <h3 className="text-sm font-semibold">Pages</h3>}
@@ -54,7 +53,6 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
-
       {/* User Mode */}
       <div className="">
         <div className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg bg-gray-100 ${isExpanded ? "hover:bg-[#D4D4D4] transition-colors duration-500 px-12" : ""}`}>

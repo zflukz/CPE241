@@ -8,11 +8,14 @@ const bookingRoutes = require('./routes/bookingRoutes.js')
 const passengerRoutes = require('./routes/passengerRoutes');
 const airlinesRoutes = require('./routes/airlineRoutes.js');
 const airportRoutes = require('./routes/airportRoutes.js');
-
+const cors = require('cors');
 const app = express();
 
 app.use(express.json());
 
+app.use(cors({
+  origin: 'http://localhost:3000',
+}));
 // ทำให้ req.db ใช้งานได้ในทุก route
 app.use((req, res, next) => {
   req.db = db;

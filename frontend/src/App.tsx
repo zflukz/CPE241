@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./pages/Login";
 import ContentPage from "./pages/ContentPage";
 import BookingHistory from "./pages/BookingHistory";
-import FlightSearch from "./pages/FSearch";
+import Bpass from "./pages/BPass";
 import HompPage from "./pages/Homepage"
 import SearchResults from "./pages/Search";
 
@@ -15,6 +15,7 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/content" element={<ContentPage />} />
         <Route path="/search" element={<SearchResults />} />
+        <Route path="/boarding-pass" element={<Bpass />} />
         <Route path="/booking-history" element={<BookingHistory />} />    
         <Route path="/Home" element={<HompPage />} />    
         <Route path="*" element={<Navigate to="/login" replace />} />

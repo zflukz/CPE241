@@ -7,7 +7,6 @@ interface Trip {
   departDate: string;
   returnDate: string;
 }
-const locations = ["New York", "Los Angeles", "San Francisco", "Chicago", "Miami"]; // Example array
 
 interface TripInputSectionProps {
   i: number;
@@ -32,10 +31,15 @@ const TripInputSection: React.FC<TripInputSectionProps> = ({
     useEffect(() => {
     const fetchAirports = async () => {
       try {
-        const response = await fetch('localhost:8000/api/airports');
+        const response = await fetch('http://localhost:8000/api/airports');
         if (!response.ok) throw new Error('Failed to fetch airports');
         const data = await response.json();
-        setAirports(data);
+        console.log('Airports fetched:', data);
+        const airportLabels = (data as Array<{ airportLabel: string }>).map(
+          item => item.airportLabel
+        );
+        console.log('Airports data:', airportLabels);
+        setAirports(airportLabels);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -60,8 +64,8 @@ const TripInputSection: React.FC<TripInputSectionProps> = ({
             <span className="text-blue-600 mr-2">✈️</span>
             <select
             className="bg-transparent outline-none w-full h-full"
-            value={trip.to || ""}
-            onChange={(e) => updateTrip(i, "to", e.target.value)}
+            value={trip.from || ""}
+            onChange={(e) => updateTrip(i, "from", e.target.value)}
             >
             <option value="">Select a location</option>
             {!error && !loading && airports.map((airport, index) => (
@@ -94,11 +98,11 @@ const TripInputSection: React.FC<TripInputSectionProps> = ({
               onChange={(e) => updateTrip(i, "to", e.target.value)}
             >
               <option value="">Select a location</option>
-              {locations.map((location, index) => (
-                <option key={index} value={location}>
-                  {location}
+              {!error && !loading && airports.map((airport, index) => (
+                <option key={index} value={airport}>
+                {airport}
                 </option>
-              ))}
+            ))}
             </select>
           </div>
         </div>

@@ -5,7 +5,7 @@ import TripSearchForm from '../components/TripSearchForm';
 
 const TravelokaHomepage = () => {
   return (
-    <div className="bg-white font-sans">
+    <div className="min-h-screen bg-[#FAF9F8] font-sans">
       <TopAfterLoginNavbar />
       {/* Hero Section */}
       <section className="relative h-96 bg-blue-800">
@@ -17,7 +17,6 @@ const TravelokaHomepage = () => {
           />
           <div className="absolute inset-0 bg-blue-900 opacity-40"></div>
         </div>
-        
         <div className="container mx-auto relative">
           <h1 className="text-center text-white text-3xl pt-12 font-medium">
             จากเอเชียตะวันออกเฉียงใต้สู่โลกทั้งใบเพื่อคุณ
