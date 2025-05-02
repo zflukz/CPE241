@@ -12,11 +12,11 @@ exports.getLastBookingID = async () => {
 
 exports.createBooking = async (bookingID, userID, flightID, bookingDate, bookingStatus) => {
   await db.execute(
-    'INSERT INTO Bookings (bookingID, userID, flightID, bookingDate, bookingStatus) VALUES (?, ?, ?, ?, ?)',
+    `INSERT INTO Bookings (bookingID, userID, flightID, bookingDate, bookingStatus)
+     VALUES (?, ?, ?, ?, ?)`,
     [bookingID, userID, flightID, bookingDate, bookingStatus]
   );
 };
-
 
 exports.bookingList = async () => {
   const [rows] = await db.query(`
@@ -35,21 +35,18 @@ exports.bookingList = async () => {
   return rows;
 };
 
-
-
-exports.editBookingTransaction = async (data) => {
+exports.editBookingTransaction = async (dbPool, data) => {
+  const connection = await dbPool.getConnection();
   try {
-    await db.beginTransaction();
+    await connection.beginTransaction();
 
-    // Edit Booking
-    await db.query(
+    await connection.query(
       `UPDATE Bookings SET bookingStatus = ? WHERE bookingID = ?`,
       [data.bookingStatus, data.bookingID]
     );
 
-    // Edit Passenger
     for (const passenger of data.passengers) {
-      await db.query(
+      await connection.query(
         `UPDATE Passengers 
          SET passengerFirstname = ?, passengerLastname = ?, sex = ?, birthDate = ?, nationality = ?, phoneNumber = ?, passportNumber = ?
          WHERE passengerID = ?`,
@@ -66,15 +63,13 @@ exports.editBookingTransaction = async (data) => {
       );
     }
 
-    // Edit Payment
-    await db.query(
+    await connection.query(
       `UPDATE Payments SET amount = ?, paymentMethod = ?, paymentStatus = ? WHERE bookingID = ?`,
       [data.payment.amount, data.payment.paymentMethod, data.payment.paymentStatus, data.bookingID]
     );
 
-    // Edit Flight (ถ้าแก้ flightID เดิม)
     if (data.flight) {
-      await db.query(
+      await connection.query(
         `UPDATE Flights 
          SET source = ?, destination = ?, departTime = ?, availableSeats = ?, airlineID = ?
          WHERE flightID = ?`,
@@ -84,18 +79,17 @@ exports.editBookingTransaction = async (data) => {
           data.flight.departTime,
           data.flight.availableSeats,
           data.flight.airlineID,
-          data.flight.flightID
+          data.flight.flightID,
         ]
       );
     }
 
-    await db.commit();
-    db.release();
+    await connection.commit();
+    connection.release();
     return { success: true };
   } catch (err) {
-    await db.rollback();
-    db.release();
+    await connection.rollback();
+    connection.release();
     throw err;
   }
 };
-

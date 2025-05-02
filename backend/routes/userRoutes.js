@@ -1,38 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
+const userController = require('../controllers/userController.js');
+
+router.post('/register', userController.register);
+router.post('/login', userController.login);
+router.get('/users', userController.getUsers);
+router.delete('/users/:userID', userController.deleteUser);
+router.post('/reset-password', userController.resetPassword);
+router.get('/passenger/:userID', userController.getPassenger);
+router.get('/booking/:userID', userController.getBooking);
 
 
-router.get('/', userController.getUsers);
-// สมัครสมาชิก
-router.post('/register', userController.registerUser);
-// เข้าสู่ระบบ
-router.post('/login', userController.loginUser);
+//ADMIN 
+router.put('/users/edit', userController.updateUser);
+router.get('/users/list', userController.userList);
 
-router.delete('/:id' , userController.deleteUser);
-
-router.put('/reset-password',userController.putNewPassword);
-
-
-
-// GET passenger ทั้งหมด ของ user 
-router.get('/:userID/passengers', userController.getPassengers);
-// GET booking ทั้งหมดของ user
-router.get('/:userID/bookings', userController.getBookings);
-
-
-
-
-
-
-
-
-
-
-
-
-
-//admin : mode
-
-router.get('/userList',userController.userLists);
 module.exports = router;

@@ -1,52 +1,16 @@
-const bookingModel = require('../models/bookingModels.js');
-const passengerModel = require('../models/passengerModels.js');
-const bookingPassengerModel = require('../models/bookingPassengerModels.js');
+const bookingService = require('../services/bookingServices.js');
 
-
-// ฟังก์ชันสร้างรหัสใหม่
-function generateNewID(lastID, prefix) {
-  if (!lastID) return `${prefix}001`;
-  const lastNumber = parseInt(lastID.replace(prefix, ''), 10);
-  const newNumber = lastNumber + 1;
-  return `${prefix}${newNumber.toString().padStart(3, '0')}`;
-}
-
-// Controller function
 exports.createFullBooking = async (req, res) => {
   try {
     const { userID, flightID, bookingDate, bookingStatus, passengers } = req.body;
-
-    if (!passengers || passengers.length === 0 || passengers.length > 4) {
-      throw new Error('Passengers must be between 1 and 4.');
-    }
-
-    // 1. Gen Booking ID
-    const lastBookingID = await bookingModel.getLastBookingID();
-    const bookingID = generateNewID(lastBookingID, 'B');
-
-    await bookingModel.createBooking(bookingID, userID, flightID, bookingDate, bookingStatus);
-
-    // 2. Loop สร้าง Passenger + BookingPassenger
-    for (const passenger of passengers) {
-      const lastPassengerID = await passengerModel.getLastPassengerID();
-      const passengerID = generateNewID(lastPassengerID, 'P');
-
-      await passengerModel.createPassenger(passengerID, passenger);
-
-      const lastBookingPassengerID = await bookingPassengerModel.getLastBookingPassengerID();
-      const bookingPassengerID = generateNewID(lastBookingPassengerID, 'BP');
-
-      const seatNumber = passenger.seatNumber || null;
-      await bookingPassengerModel.createBookingPassenger(bookingPassengerID, bookingID, passengerID, seatNumber);
-    }
-
+    const bookingID = await bookingService.createFullBooking(userID, flightID, bookingDate, bookingStatus, passengers);
     res.status(201).json({ message: 'Booking with passengers created successfully', bookingID });
-
   } catch (err) {
-    console.log(err)
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 
@@ -71,35 +35,33 @@ exports.createFullBooking = async (req, res) => {
 //   ]
 // }
 
-exports.getBooking = async (req,res) =>{
-  try{
-    const bookings = await bookingModel.getBooking();
-    res.status(200).json(bookings);
-  }
-  catch(err){
-    res.status(500).json(err);
-  }
-}
-
-exports.bookingList = async (req,res) =>{
-  try{
-    const bookingList = await bookingModel.bookingList();
-    res.status(200).json(bookingList);
-  }
-  catch(err){
-    res.status(500).json(err);
-  }
-}
-
-
-
-
-exports.editFullBooking = async (req, res) => {
+exports.getAllBookings = async (req, res) => {
   try {
-    const result = await bookingModel.editBookingTransaction(req.body);
-    res.status(200).json({ message: 'Edit success', result });
-  } catch (error) {
-    res.status(500).json({ message: 'Edit failed', error: error.message });
+    const result = await bookingService.getAllBookings();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to retrieve bookings', error: err.message });
+  }
+};
+
+exports.getBookingList = async (req, res) => {
+  try {
+    const result = await bookingService.getBookingList();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to retrieve booking list', error: err.message });
+  }
+};
+
+
+
+
+exports.editBookingTransaction = async (req, res) => {
+  try {
+    const result = await bookingService.editBookingTransaction(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update booking transaction', error: err.message });
   }
 };
 

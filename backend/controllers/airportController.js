@@ -1,12 +1,12 @@
-const airportModel = require("../models/airportModels");
 
+const airportService = require('../services/airportServices.js');
 
 exports.getAirports = async (req, res) => {
   try {
-    const airports = await airportModel.getairport();
+    const airports = await airportService.getAirports();
     res.status(200).json(airports);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: 'Error fetching airports' });
+  } catch (error) {
+    console.error('Error fetching airports:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

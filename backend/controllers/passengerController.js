@@ -1,4 +1,4 @@
-const passengerModel = require('../models/passengerModels');
+const passengerModel = require('../repository/passengerRepositorys.js');
 
 
 
