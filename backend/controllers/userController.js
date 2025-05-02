@@ -136,3 +136,33 @@ exports.putNewPassword = async (req, res) => {
     res.status(404).json({ message: 'Email not found' });
   }
 };
+
+
+
+
+
+//ADMIN : mode
+exports.userLists = async (req,res)=>{
+  try{
+    const Users = await userModel.userLists();
+    res.status(200).json(Users);
+  }
+  catch(err){
+    res.status(500).json(err);
+  }
+};
+
+exports.userEdits = async (req,res) =>{
+  const {username, password, email, role} = req.body;
+  try{
+
+    if (!username || !password || !email || !role ){
+      res.json("input username password email role");
+    }
+
+    res.json("Edit complete");
+  }
+  catch(err){
+    res.status(500).json(err);
+  }
+}

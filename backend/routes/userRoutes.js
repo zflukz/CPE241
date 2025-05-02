@@ -20,4 +20,19 @@ router.get('/:userID/passengers', userController.getPassengers);
 // GET booking ทั้งหมดของ user
 router.get('/:userID/bookings', userController.getBookings);
 
+
+
+
+
+
+
+
+
+
+
+
+
+//admin : mode
+
+router.get('/userList',userController.userLists);
 module.exports = router;

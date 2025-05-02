@@ -36,4 +36,66 @@ exports.bookingList = async () => {
 };
 
 
-exports.update
+
+exports.editBookingTransaction = async (data) => {
+  try {
+    await db.beginTransaction();
+
+    // Edit Booking
+    await db.query(
+      `UPDATE Bookings SET bookingStatus = ? WHERE bookingID = ?`,
+      [data.bookingStatus, data.bookingID]
+    );
+
+    // Edit Passenger
+    for (const passenger of data.passengers) {
+      await db.query(
+        `UPDATE Passengers 
+         SET passengerFirstname = ?, passengerLastname = ?, sex = ?, birthDate = ?, nationality = ?, phoneNumber = ?, passportNumber = ?
+         WHERE passengerID = ?`,
+        [
+          passenger.passengerFirstname,
+          passenger.passengerLastname,
+          passenger.sex,
+          passenger.birthDate,
+          passenger.nationality,
+          passenger.phoneNumber,
+          passenger.passportNumber,
+          passenger.passengerID,
+        ]
+      );
+    }
+
+    // Edit Payment
+    await db.query(
+      `UPDATE Payments SET amount = ?, paymentMethod = ?, paymentStatus = ? WHERE bookingID = ?`,
+      [data.payment.amount, data.payment.paymentMethod, data.payment.paymentStatus, data.bookingID]
+    );
+
+    // Edit Flight (ถ้าแก้ flightID เดิม)
+    if (data.flight) {
+      await db.query(
+        `UPDATE Flights 
+         SET source = ?, destination = ?, departTime = ?, availableSeats = ?, airlineID = ?
+         WHERE flightID = ?`,
+        [
+          data.flight.source,
+          data.flight.destination,
+          data.flight.departTime,
+          data.flight.availableSeats,
+          data.flight.airlineID,
+          data.flight.flightID
+        ]
+      );
+    }
+
+    await db.commit();
+    db.release();
+    return { success: true };
+  } catch (err) {
+    await db.rollback();
+    db.release();
+    throw err;
+  }
+};
+

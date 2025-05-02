@@ -75,5 +75,20 @@ exports.resetPassword = async (db, email, newPassword) => {
 
   return result.affectedRows > 0;
 };
-  
+
+//ADMIN : mode
+
+
+exports.userLists = async () =>{
+  const [rows] = await db.execute(`SELECT userID, username, email, role FROM Users `);
+  return rows;
+};
+exports.userEdits = async (db, username, password, email, role) =>{
+  const query = `UPDATE Users SET username = ?, password = ?, email = ?, role = ?`;
+  const [result] = await db.query(query,[username, password, email, role]);
+
+  return result.affectedRows >0;
+};
+
+
   

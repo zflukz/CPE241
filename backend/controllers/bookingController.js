@@ -48,6 +48,9 @@ exports.createFullBooking = async (req, res) => {
   }
 };
 
+
+
+
 //example Data : 
 // {
 //   "userID": "U001",
@@ -87,4 +90,28 @@ exports.bookingList = async (req,res) =>{
     res.status(500).json(err);
   }
 }
+
+
+
+
+exports.editFullBooking = async (req, res) => {
+  try {
+    const result = await bookingModel.editBookingTransaction(req.body);
+    res.status(200).json({ message: 'Edit success', result });
+  } catch (error) {
+    res.status(500).json({ message: 'Edit failed', error: error.message });
+  }
+};
+
+// {
+//   "updatedBooking": {
+//     "bookingStatus": "CONFIRMED"
+//   },
+//   "payment": {
+//     "paymentDate": "2025-04-29T14:00:00Z",
+//     "amount": 1800.00,
+//     "paymentMethod": "credit_card",
+//     "paymentStatus": "paid"
+//   }
+// }
 
