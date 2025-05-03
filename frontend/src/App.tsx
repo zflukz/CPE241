@@ -7,11 +7,19 @@ import BookingHistory from "./pages/BookingHistory";
 import Bpass from "./pages/BPass";
 import HompPage from "./pages/Homepage"
 import SearchResults from "./pages/Search";
-
+import ReservationPage from "./pages/ReservationPage";
+import Loading from "./pages/Loading";
+import Payment from "./pages/Payment";
+import Success from "./pages/Success";
 const App: React.FC = () => {
   return (
     <Router>
       <Routes>
+        <Route path="/booking" element={<ReservationPage />} />
+        <Route path="/success" element= {<Success/>}/>
+        
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/Loading" element={<Loading />} />
         <Route path="/login" element={<Login />} />
         <Route path="/content" element={<ContentPage />} />
         <Route path="/search" element={<SearchResults />} />
