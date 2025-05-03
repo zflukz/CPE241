@@ -36,7 +36,7 @@ const ManageBookings = () => {
 
       <div className="flex-1 p-8 bg-[#FAF9F8] min-h-screen overflow-auto">
         <div className="flex items-center justify-between mt-8 mb-8">
-          <h1 className="text-[24px] font-bold">Boooking List (87)</h1>
+          <h1 className="text-[24px] font-bold">Boooking List ({bookings.length})</h1>
 
           <div className="flex items-center gap-4">
             <div className="relative w-1/3">
@@ -79,7 +79,6 @@ const ManageBookings = () => {
               {bookings.map((booking, index) => (
                 <TableRow key={index}>
                   <TableCell className="text-center">{booking.date}
-                  <LongFlightPath/>
                   </TableCell>
                   <TableCell className="text-center">{booking.flightNo}</TableCell>
                   <TableCell className="text-center">{booking.bookingID}</TableCell>

@@ -43,7 +43,7 @@ const ManageFlights = () => {
       {/* Main Content */}
       <div className="flex-1 p-8 bg-[#FAF9F8] min-h-screen overflow-auto">
         <div className="flex items-center justify-between mt-8 mb-8">
-          <h1 className="text-[24px] font-bold">Flight List (87)</h1>
+          <h1 className="text-[24px] font-bold">Flight List ({flights.length})</h1>
 
           <div className="flex items-center gap-4">
 		  <div className="relative w-1/3">
