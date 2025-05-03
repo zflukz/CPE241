@@ -7,6 +7,10 @@ const passengerRoutes = require('./routes/passengerRoutes');
 const airlinesRoutes = require('./routes/airlineRoutes.js');
 const airportRoutes = require('./routes/airportRoutes.js');
 const adminRoutes = require('./routes/adminRoutes.js');
+const ticketRoutes = require('./routes/ticketRoutes.js');
+
+
+
 
 const app = express();
 
@@ -27,6 +31,7 @@ app.use('/api/flights', flightRoutes);
 app.use('/api/airlines' , airlinesRoutes);
 app.use('/api/airports', airportRoutes);
 app.use('/api/admins', adminRoutes);
+app.use('/api/tickets',ticketRoutes);
 
 
 

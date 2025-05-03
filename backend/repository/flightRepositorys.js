@@ -54,3 +54,126 @@ exports.searchByMoney = async (min, max) => {
 exports.deleteFlightByID = async (flightID) => {
   await db.execute(`DELETE FROM Flights WHERE flightID = ?`, [flightID]);
 };
+
+
+exports.flightInformation = async () => {
+  const [rows] = await db.execute(`
+    SELECT 
+      f.flightID,
+      src.code AS sourceCode,
+      dest.code AS destinationCode,
+      f.departTime,
+      f.arrivalTime,
+      src.airportLabel AS sourceAirport,
+      dest.airportLabel AS destinationAirport,
+      f.flightStatus,
+      f.availableSeats AS totalSeats,
+      COUNT(DISTINCT bp.bookingPassengerID) AS bookedSeats,
+      f.availableSeats - COUNT(DISTINCT bp.bookingPassengerID) AS availableSeatsRemaining,
+      
+      GROUP_CONCAT(
+        CONCAT(
+          p.passengerID, '|',
+          p.passengerFirstname, ' ', p.passengerLastname, '|',
+          bp.seatNumber, '|',
+          COALESCE(bag.status, 'notChecked')
+        )
+        SEPARATOR '||'
+      ) AS passengerDetails
+
+    FROM Flights f
+    JOIN Airports src ON f.source = src.airportID
+    JOIN Airports dest ON f.destination = dest.airportID
+    LEFT JOIN Bookings b ON f.flightID = b.flightID AND b.bookingStatus = 'confirmed'
+    LEFT JOIN BookingPassengers bp ON b.bookingID = bp.bookingID
+    LEFT JOIN Passengers p ON bp.passengerID = p.passengerID
+    LEFT JOIN Baggages bag 
+      ON bag.passengerID = p.passengerID AND bag.flightID = f.flightID
+
+    GROUP BY 
+      f.flightID, src.code, dest.code, f.departTime, f.arrivalTime, 
+      src.airportLabel, dest.airportLabel, f.flightStatus, f.availableSeats
+  `);
+
+  // Optional: แปลง passengerDetails เป็น Array of objects
+  const result = rows.map(flight => {
+    const passengers = (flight.passengerDetails || '')
+      .split('||')
+      .filter(Boolean)
+      .map(item => {
+        const [passengerID, fullName, seatNumber, checkInStatus] = item.split('|');
+        return { passengerID, fullName, seatNumber, checkInStatus };
+      });
+
+    return {
+      ...flight,
+      passengers
+    };
+  });
+
+  return result;
+};
+
+
+
+
+exports.flightInformationByID = async (flightID) => {
+  const [rows] = await db.execute(`
+    SELECT 
+      f.flightID,
+      src.code AS sourceCode,
+      dest.code AS destinationCode,
+      f.departTime,
+      f.arrivalTime,
+      src.airportLabel AS sourceAirport,
+      dest.airportLabel AS destinationAirport,
+      f.flightStatus,
+      f.availableSeats AS totalSeats,
+      COUNT(DISTINCT bp.bookingPassengerID) AS bookedSeats,
+      f.availableSeats - COUNT(DISTINCT bp.bookingPassengerID) AS availableSeatsRemaining,
+      
+      GROUP_CONCAT(
+        CONCAT(
+          p.passengerID, '|',
+          p.passengerFirstname, ' ', p.passengerLastname, '|',
+          bp.seatNumber, '|',
+          COALESCE(bag.status, 'notChecked')
+        )
+        SEPARATOR '||'
+      ) AS passengerDetails
+
+    FROM Flights f
+    JOIN Airports src ON f.source = src.airportID
+    JOIN Airports dest ON f.destination = dest.airportID
+    LEFT JOIN Bookings b ON f.flightID = b.flightID AND b.bookingStatus = 'confirmed'
+    LEFT JOIN BookingPassengers bp ON b.bookingID = bp.bookingID
+    LEFT JOIN Passengers p ON bp.passengerID = p.passengerID
+    LEFT JOIN Baggages bag 
+      ON bag.passengerID = p.passengerID AND bag.flightID = f.flightID
+
+    WHERE f.flightID = ?
+
+    GROUP BY 
+      f.flightID, src.code, dest.code, f.departTime, f.arrivalTime, 
+      src.airportLabel, dest.airportLabel, f.flightStatus, f.availableSeats
+  `, [flightID]);
+
+  const result = rows.map(flight => {
+    const passengers = (flight.passengerDetails || '')
+      .split('||')
+      .filter(Boolean)
+      .map(item => {
+        const [passengerID, fullName, seatNumber, checkInStatus] = item.split('|');
+        return { passengerID, fullName, seatNumber, checkInStatus };
+      });
+
+    return {
+      ...flight,
+      passengers
+    };
+  });
+
+  return result;
+};
+
+

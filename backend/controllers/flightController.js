@@ -56,3 +56,24 @@ exports.deleteFlight = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+
+exports.flightInformation = async (req, res) => {
+  try {
+    const flights = await flightService.flightInformation();
+    res.json(flights);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.flightInformationByID = async (req, res) => {
+  try {
+    const { flightID } = req.params; 
+    const flights = await flightService.flightInformationByID(flightID);
+    res.json(flights);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

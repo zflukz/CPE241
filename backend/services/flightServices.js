@@ -24,3 +24,11 @@ exports.findFlightsByPrice = async (min, max) => {
 exports.removeFlight = async (flightID) => {
   return await flightRepo.deleteFlightByID(flightID);
 };
+
+exports.flightInformation = async() =>{
+  return await flightRepo.flightInformation();
+};
+
+exports.flightInformationByID = async(flightID) =>{
+  return await flightRepo.flightInformationByID(flightID);
+};

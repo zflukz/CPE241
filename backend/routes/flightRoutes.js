@@ -8,6 +8,8 @@ router.get('/search/route', flightController.searchByRoute);
 router.get('/search/roundtrip', flightController.searchRoundTrip);
 router.get('/search/price', flightController.searchByPrice);
 router.delete('/:id', flightController.deleteFlight);
+router.get('/overview',flightController.flightInformation);
+router.get('/overview/:flightID',flightController.flightInformationByID);
 //router.delete('/:flightID',flig htflightController.deleteFlightByID);
 
 module.exports = router;
