@@ -17,7 +17,7 @@ exports.getBoardingPassByPassengerID = async (passengerID) => {
   if (!ticket) throw new Error('Ticket not found');
 
   return {
-    flightNumber: ticket.flightNumber,
+    flightNumber: ticket.flightID,
     from: {
       code: ticket.sourceCode,
       label: ticket.sourceAirport,

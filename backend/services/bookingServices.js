@@ -2,6 +2,7 @@ const bookingRepo = require('../repository/bookingRepositorys');
 const db = require('../config/db');
 const passengerRepo = require('../repository/passengerRepositorys.js');
 const bookingPassengerRepo = require('../repository/bookingPassengerRepositorys.js');
+const paymentRepo = require('../repository/paymentRepositorys.js');
 
 exports.getAllBookings = async () => {
   return await bookingRepo.getBooking();
@@ -32,6 +33,8 @@ function generateNewID(lastID, prefix) {
   return `${prefix}${newNumber.toString().padStart(3, '0')}`;
 }
 
+
+
 exports.createFullBooking = async (userID, flightID, bookingDate, bookingStatus, passengers) => {
   if (!passengers || passengers.length === 0 || passengers.length > 4) {
     throw new Error('Passengers must be between 1 and 4.');
@@ -53,6 +56,11 @@ exports.createFullBooking = async (userID, flightID, bookingDate, bookingStatus,
     const seatNumber = passenger.seatNumber || null;
     await bookingPassengerRepo.createBookingPassenger(bookingPassengerID, bookingID, passengerID, seatNumber);
   }
+
+  // สร้าง Payment Record ด้วยสถานะ pending
+  const lastPaymentID = await paymentRepo.getLastPaymentID();
+  const paymentID = generateNewID(lastPaymentID, 'PM');
+  await paymentRepo.createPendingPayment(paymentID, bookingID);
 
   return bookingID;
 };

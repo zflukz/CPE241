@@ -38,31 +38,34 @@ exports.deleteTicket = async (ticketID) => {
 
 
 exports.getBoardingPassByPassengerID = async (passengerID) => {
-  const [rows] = await db.execute(`
-    SELECT 
-      f.flightID,
-      f.flightNumber,
-      f.departTime,
-      f.arrivalTime,
-      f.flightStatus,
-      src.code AS sourceCode,
-      src.airportLabel AS sourceAirport,
-      dest.code AS destinationCode,
-      dest.airportLabel AS destinationAirport,
-      bp.seatNumber,
-      p.passengerFirstname,
-      p.passengerLastname,
-      b.bookingDate,
-      bag.status AS checkinStatus
-    FROM BookingPassengers bp
-    JOIN Bookings b ON bp.bookingID = b.bookingID
-    JOIN Flights f ON b.flightID = f.flightID
-    JOIN Passengers p ON bp.passengerID = p.passengerID
-    JOIN Airports src ON f.source = src.airportID
-    JOIN Airports dest ON f.destination = dest.airportID
-    LEFT JOIN Baggages bag ON bag.passengerID = p.passengerID AND bag.flightID = f.flightID
-    WHERE bp.passengerID = ?
-  `, [passengerID]);
-
-  return rows[0];
-};
+    const [rows] = await db.execute(`
+      SELECT 
+        f.flightID,
+        src.code AS sourceCode,
+        src.airportLabel AS sourceAirport,
+        dest.code AS destinationCode,
+        dest.airportLabel AS destinationAirport,
+        f.departTime,
+        f.arrivalTime,
+        bp.seatNumber,
+        b.bookingDate,
+        p.passengerFirstname,
+        p.passengerLastname,
+        COALESCE(bag.status, 'notChecked') AS checkinStatus
+  
+      FROM BookingPassengers bp
+      JOIN Bookings b ON bp.bookingID = b.bookingID AND b.bookingStatus = 'confirmed'
+      JOIN Flights f ON b.flightID = f.flightID
+      JOIN Airports src ON f.source = src.airportID
+      JOIN Airports dest ON f.destination = dest.airportID
+      JOIN Passengers p ON bp.passengerID = p.passengerID
+      LEFT JOIN Baggages bag ON bag.passengerID = p.passengerID AND bag.flightID = f.flightID
+  
+      WHERE bp.passengerID = ?
+      LIMIT 1
+    `, [passengerID]);
+    //console.log("ROWS: " ,rows);
+  
+    return rows[0]; // สำคัญมาก! ต้อง return แค่แถวเดียว
+  };
+  

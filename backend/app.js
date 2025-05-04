@@ -1,5 +1,7 @@
 const express = require('express');
 const db = require('./config/db.js');
+const runPaymentCronJob = require('./cron/paymentCron.js');
+
 const userRoutes = require('./routes/userRoutes.js');
 const flightRoutes = require('./routes/flightRoutes.js');
 const bookingRoutes = require('./routes/bookingRoutes.js')
@@ -8,7 +10,7 @@ const airlinesRoutes = require('./routes/airlineRoutes.js');
 const airportRoutes = require('./routes/airportRoutes.js');
 const adminRoutes = require('./routes/adminRoutes.js');
 const ticketRoutes = require('./routes/ticketRoutes.js');
-
+const paymentRoutes = require('./routes/paymentRoutes.js');
 
 
 
@@ -32,8 +34,9 @@ app.use('/api/airlines' , airlinesRoutes);
 app.use('/api/airports', airportRoutes);
 app.use('/api/admins', adminRoutes);
 app.use('/api/tickets',ticketRoutes);
+app.use('/api/payments',paymentRoutes);
 
-
+runPaymentCronJob();
 
 const PORT = 8000;
 app.listen(PORT, () => {

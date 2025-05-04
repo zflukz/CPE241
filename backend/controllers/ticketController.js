@@ -50,13 +50,13 @@ exports.deleteTicket = async (req, res) => {
 
 
 exports.getBoardingPassByPassengerID = async (req, res) => {
-  const { passengerID } = req.params;
-
-  try {
-    const ticket = await ticketService.getBoardingPassByPassengerID(passengerID);
-    res.status(200).json(ticket);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
-};
+    try {
+      const passengerID = req.params.passengerID; // หรือ req.query.passengerID
+      const ticket = await ticketService.getBoardingPassByPassengerID(passengerID);
+      res.json(ticket);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
+  
 
