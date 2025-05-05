@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '../components/Button';
-import { Input } from '../components/Input';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../components/Table';
 import { Badge } from '../components/Badge';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '../components/Pagination';
@@ -11,6 +10,9 @@ import FlightPath from '../components/Route';
 import { FiCheckCircle, FiClock, FiXCircle } from 'react-icons/fi'; // Importing icons
 import { HiBarsArrowDown } from "react-icons/hi2";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
+import TopNavbar from '../components/TopNavBar';
+import FlightOverview from './FlightOverview';
+import { Link } from 'react-router-dom';
 
 interface Flight {
   flightNo: string;
@@ -39,36 +41,37 @@ const ManageFlights = () => {
     <div className="flex min-h-screen font-sans">
       {/* Navbar */}
       <Navbar />
-
+      <div className='flex-1 flex flex-col'>
+        <TopNavbar/>
       {/* Main Content */}
       <div className="flex-1 p-8 bg-[#FAF9F8] min-h-screen overflow-auto">
-        <div className="flex items-center justify-between mt-8 mb-8">
-          <h1 className="text-[24px] font-bold">Flight List ({flights.length})</h1>
+      <div className="flex items-center justify-between mt-8 mb-8">
+        <h1 className="text-[24px] font-bold">Flight List ({flights.length})</h1>
 
-          <div className="flex items-center gap-4">
-		  <div className="relative w-1/3">
-			<input
-				type="text"
-				placeholder="Search here"
-				className="w-full pl-10 py-2 border rounded-[13px] bg-white focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
-			/>
-			<HiMiniMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#C84B2F]" />
-			</div>
-			
-            <Button variant="outline" className='flex items-center gap-2 bg-[#FFFFFF] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C84B2F]'>
-			<HiBarsArrowDown size={20}/> Filter 
-			</Button>
-
-            <Button
-			variant="outline"
-			className="flex items-center gap-2 bg-[#C84B2F] text-white font-semibold border-0 hover:bg-[#C63F21] focus:ring-0"
-			>
-			<HiPlusCircle size={20} />
-			Add Flight
-			</Button>
-
+        <div className="flex items-center gap-4 max-w-[450px] justify-end"> 
+          <div className="flex-1 relative w-72"> 
+            <input
+              type="text"
+              placeholder="Search here"
+              className="w-full pl-10 py-2 border rounded-[13px] bg-white hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
+            />
+            <HiMiniMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#C84B2F]" />
           </div>
+
+          <Button variant="outline" className='flex items-center gap-2 bg-[#FFFFFF] hover:bg-[#F7F7F7] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C84B2F]'>
+            <HiBarsArrowDown size={20} /> Filter
+          </Button>
+
+          <Button
+            variant="outline"
+            className="flex items-center gap-2 bg-[#C84B2F] text-white font-semibold border-0 hover:bg-[#C63F21] focus:ring-0"
+          >
+            <HiPlusCircle size={20} />
+            Add Flight
+          </Button>
         </div>
+      </div>
+
 
         <div className="bg-white rounded-lg shadow-md border border-[#D4D4D4]">
           <Table>
@@ -113,7 +116,9 @@ const ManageFlights = () => {
 					</Badge>
                   </TableCell>
                   <TableCell className="flex gap-2 justify-center">
+                    <Link to="/manageflight/flightoverview">
                     <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'><FiEye size={18} /></Button>
+                    </Link>
                     <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'><FiEdit2 size={18} /></Button>
                     <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'><FiTrash2 size={18} /></Button>
                   </TableCell>
@@ -136,6 +141,7 @@ const ManageFlights = () => {
             </PaginationContent>
           </Pagination>
         </div>
+      </div>
       </div>
     </div>
   );

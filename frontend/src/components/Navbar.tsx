@@ -63,7 +63,7 @@ const Navbar: React.FC = () => {
 
   return (
     <div
-      className={`font-sans font-light text-[16px] relative flex flex-col items-center space-y-6 p-6 bg-white shadow-md transition-all duration-100
+      className={`font-sans font-light text-[16px] relative flex flex-col items-center space-y-6 p-6 bg-white border-r border-[#D4D4D4] transition-all duration-100
       ${isExpanded ? "w-[274px] items-start" : "w-[90px] items-center"} min-h-screen bg-white`}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
@@ -77,7 +77,7 @@ const Navbar: React.FC = () => {
 
       {/* Logo */}
       <div className="flex items-center">
-        <img src="images/logo/logo.png" width={50} alt="logo" />
+      <img src="/images/logo/logo.png" width={50} alt="logo" className="" />
         {isExpanded && <h2 className="text-xl font-bold ml-2">OakAirline</h2>}
       </div>
 

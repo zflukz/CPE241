@@ -1,5 +1,6 @@
 import { cn } from "../lib/utils";
 import { forwardRef } from "react";
+import React from "react";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "default" | "outline" | "ghost";
