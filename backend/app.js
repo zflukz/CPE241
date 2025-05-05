@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('./config/db.js');
-const runPaymentCronJob = require('./cron/paymentCron.js');
+
 
 const userRoutes = require('./routes/userRoutes.js');
 const flightRoutes = require('./routes/flightRoutes.js');
@@ -36,7 +36,7 @@ app.use('/api/admins', adminRoutes);
 app.use('/api/tickets',ticketRoutes);
 app.use('/api/payments',paymentRoutes);
 
-runPaymentCronJob();
+
 
 const PORT = 8000;
 app.listen(PORT, () => {

@@ -1,32 +1,26 @@
-const db = require('../config/db.js'); // ตัวเชื่อม MySQL
+const db = require('../config/db'); // หรือโมดูลฐานข้อมูลที่ใช้
 
 exports.getLastPaymentID = async () => {
-  const [rows] = await db.query("SELECT paymentID FROM Payments ORDER BY paymentID DESC LIMIT 1");
-  return rows.length ? rows[0].paymentID : null;
+  // สมมุติใช้ auto-increment, ถ้าใช้ ID แบบ custom ใช้ logic เหมือนในคำถาม
+  const result = await db.query('SELECT id FROM payments ORDER BY created_at DESC LIMIT 1');
+  return result[0]?.id || null;
 };
 
-exports.createPendingPayment = async (paymentID, bookingID, amount, method) => {
-  await db.query(`
-    INSERT INTO Payments (paymentID, bookingID, paymentDate, amount, paymentMethod, paymentStatus)
-    VALUES (?, ?, NULL, ?, ?, 'pending')
-  `, [paymentID, bookingID, amount, method]);
+exports.createPendingPayment = async (paymentID, bookingID) => {
+  await db.query(
+    'INSERT INTO payments (id, booking_id, status, created_at) VALUES (?, ?, ?, NOW())',
+    [paymentID, bookingID, 'pending']
+  );
 };
 
-exports.getPendingPaymentsOver30Min = async () => {
-    const [rows] = await db.query(`
-      SELECT paymentID FROM Payments
-      WHERE paymentStatus = 'pending'
-      AND TIMESTAMPDIFF(MINUTE, createdAt, NOW()) > 30
-    `);
-    return rows;
-  };
-  
-  exports.updatePaymentStatus = async (paymentID, newStatus) => {
-    const now = newStatus === 'paid' ? new Date() : null;
-    await db.query(`
-      UPDATE Payments
-      SET paymentStatus = ?, paymentDate = ?
-      WHERE paymentID = ?
-    `, [newStatus, now, paymentID]);
-  };
-  
+exports.updatePaymentStatus = async (paymentID, status) => {
+  await db.query('UPDATE payments SET status = ? WHERE id = ?', [status, paymentID]);
+};
+
+exports.getPendingPaymentsOlderThan = async (minutes) => {
+  const [rows] = await db.query(
+    'SELECT id FROM payments WHERE status = ? AND created_at < NOW() - INTERVAL ? MINUTE',
+    ['pending', minutes]
+  );
+  return rows;
+};
