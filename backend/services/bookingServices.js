@@ -57,10 +57,6 @@ exports.createFullBooking = async (userID, flightID, bookingDate, bookingStatus,
     await bookingPassengerRepo.createBookingPassenger(bookingPassengerID, bookingID, passengerID, seatNumber);
   }
 
-  // สร้าง Payment Record ด้วยสถานะ pending
-  const lastPaymentID = await paymentRepo.getLastPaymentID();
-  const paymentID = generateNewID(lastPaymentID, 'PM');
-  await paymentRepo.createPendingPayment(paymentID, bookingID);
-
   return bookingID;
 };
+

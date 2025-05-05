@@ -36,6 +36,7 @@ app.use('/api/admins', adminRoutes);
 app.use('/api/tickets',ticketRoutes);
 app.use('/api/payments',paymentRoutes);
 
+require('./cron/paymentCron.js');
 
 
 const PORT = 8000;

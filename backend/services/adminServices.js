@@ -20,3 +20,11 @@ exports.getCancelStats = async () => {
     oneYear: { canceled: year.canceled, total: year.total, cancelRate: rate(year.canceled, year.total) }
   };
 };
+
+exports.getCustomerProfile = async (bookingID) => {
+  if (!bookingID) {
+    throw new Error('Booking ID is required.');
+  }
+
+  return await repo.customerProfile(bookingID);
+};
