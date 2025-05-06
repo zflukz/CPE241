@@ -5,13 +5,14 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 interface Passenger {
+  id: string;
   fullName: string;
   gender: 'Male' | 'Female';
   dob: string;
   nationality: string;
   passportnumber: string;
   seat: string;
-  seatClass: 'First Class'| 'Business Class' |  'Premium Economy' | 'Economy Class';
+  seatClass: 'First Class' | 'Business Class' | 'Premium Economy' | 'Economy Class';
   baggageWeight: number;
 }
 
@@ -46,7 +47,7 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
   const [baggageWeight, setBaggageWeight] = useState<number>(passenger.baggageWeight || 0);
 
   useEffect(() => {
-    if (passenger.fullName === '') {
+    if (passenger.id === '') {  // Check for a new passenger case
       setFullName('');
       setGender('Male');
       setDob(null);
@@ -58,7 +59,8 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
     } else {
       setFullName(passenger.fullName);
       setGender(passenger.gender);
-      setDob(new Date(passenger.dob));
+      const dobDate = passenger.dob ? new Date(passenger.dob) : null;
+      setDob(dobDate && !isNaN(dobDate.getTime()) ? dobDate : null);  // Ensure it's a valid Date object
       setNationality(passenger.nationality);
       setPassportnumber(passenger.passportnumber);
       setSeat(passenger.seat);
@@ -66,11 +68,13 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
       setBaggageWeight(passenger.baggageWeight);
     }
   }, [passenger]);
+ 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     const updatedPassenger: Passenger = {
+      ...passenger,
       fullName,
       gender,
       dob: dob?.toISOString().split('T')[0] || '',
@@ -80,10 +84,11 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
       seatClass,
       baggageWeight,
     };
-
-    onUpdatePassenger(updatedPassenger);
-    onClose();
+  
+    onUpdatePassenger(updatedPassenger); // Call the parent function to update the state
+    onClose(); // Close the modal
   };
+  
 
   return (
     <div className="flex justify-center items-center font-sans text-black bg-gray-50">
@@ -97,7 +102,12 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
               <Input label="Full Name" value={fullName} onChange={setFullName} required />
             </div>
             <div className="flex-1">
-              <SelectField label="Gender" value={gender} options={genderOptions} onChange={setGender} />
+            <SelectField
+              label="Gender"
+              value={gender}
+              options={genderOptions}
+              onChange={(val) => setGender(val as 'Male' | 'Female')}
+            />
             </div>
           </div>
 
@@ -137,7 +147,12 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
           {/* Fourth row: Seat Class and Baggage Weight */}
           <div className="flex justify-between space-x-4">
             <div className="flex-1">
-              <SelectField label="Seat Class" value={seatClass} options={seatClassOptions} onChange={setSeatClass} />
+            <SelectField
+              label="Seat Class"
+              value={seatClass}
+              options={seatClassOptions}
+              onChange={(val) => setSeatClass(val as 'First Class' | 'Business Class' | 'Premium Economy' | 'Economy Class')}
+            />
             </div>
             <div className="flex-1">
               <Input
@@ -183,7 +198,7 @@ const Input = ({
 }: {
   label: string;
   value: string;
-  onChange: (val: string) => void;
+  onChange: (value: string) => void;
   type?: string;
   required?: boolean;
 }) => (
@@ -194,12 +209,11 @@ const Input = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       required={required}
-      className="w-full pl-4 py-2 border rounded-lg bg-white hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
+      className="w-full pl-4 py-2 border rounded-[9px] bg-white hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#C84B2F] font-sans text-[16px] leading-tight"
     />
   </div>
 );
 
-// Reusable SelectField Component
 const SelectField = ({
   label,
   value,
@@ -209,34 +223,15 @@ const SelectField = ({
   label: string;
   value: string;
   options: { value: string; label: string }[];
-  onChange: (val: any) => void;
+  onChange: (value: string) => void;
 }) => (
   <div>
     <label className="block text-[16px] font-medium text-gray-700 mb-1">{label}</label>
     <Select
       options={options}
-      value={options.find((opt) => opt.value === value)}
-      onChange={(selected) => onChange(selected?.value)}
-      styles={{
-        control: (provided, state) => ({
-          ...provided,
-          height: '42px',
-          borderRadius: '8px',
-          borderColor: state.isFocused ? '' : '',
-          boxShadow: state.isFocused ? '0 0 0 2px #FCD9D1' : 'none',
-          backgroundColor: '#FFFFFF',
-          '&:hover': {
-            backgroundColor: '#F7F7F7',
-          },
-        }),
-        option: (provided, state) => ({
-          ...provided,
-          backgroundColor: state.isSelected ? '#C84B2F' : state.isFocused ? '#FCD9D1' : 'white',
-          color: state.isSelected ? 'white' : 'black',
-          fontWeight: state.isSelected ? 'bold' : 'normal',
-          cursor: 'pointer',
-        }),
-      }}
+      value={options.find(option => option.value === value)}
+      onChange={(selected) => onChange((selected as { value: string }).value)}  
+      className="w-full"
     />
   </div>
 );

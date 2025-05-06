@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 interface Passenger {
+  id: string; 
   fullName: string;
   gender: 'Male' | 'Female';
   dob: string;
@@ -36,38 +37,40 @@ const seatClassOptions = [
 const EditPassenger: React.FC<EditPassengerProps> = ({ passenger, onUpdatePassenger, onClose }) => {
   const [fullName, setFullName] = useState(passenger.fullName);
   const [gender, setGender] = useState(passenger.gender);
-  const [dob, setDob] = useState<Date | null>(new Date(passenger.dob));
+  const [dob, setDob] = useState<Date | null>(passenger.dob ? new Date(passenger.dob) : null);
   const [nationality, setNationality] = useState(passenger.nationality);
   const [passportnumber, setPassportnumber] = useState(passenger.passportnumber);
   const [seat, setSeat] = useState(passenger.seat);
   const [seatClass, setSeatClass] = useState(passenger.seatClass);
-  const [baggageWeight, setBaggageWeight] = useState<number>(passenger.baggageWeight);
+  const [baggageWeight, setBaggageWeight] = useState<number>(passenger.baggageWeight || 0);
 
   useEffect(() => {
     setFullName(passenger.fullName);
     setGender(passenger.gender);
-    setDob(new Date(passenger.dob));
+    setDob(passenger.dob ? new Date(passenger.dob) : null);
     setNationality(passenger.nationality);
     setPassportnumber(passenger.passportnumber);
     setSeat(passenger.seat);
     setSeatClass(passenger.seatClass);
-    setBaggageWeight(passenger.baggageWeight);
+    setBaggageWeight(passenger.baggageWeight || 0);
   }, [passenger]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Ensure dob is a valid date, otherwise fallback to an empty string
     const updatedPassenger: Passenger = {
+      ...passenger,
       fullName,
       gender,
-      dob: dob?.toISOString().split('T')[0] || '',
+      dob: dob ? dob.toISOString().split('T')[0] : '',
       nationality,
       passportnumber,
       seat,
       seatClass,
       baggageWeight,
     };
-
+    console.log('ส่งข้อมูลที่อัพเดต:', updatedPassenger); // ตรวจสอบข้อมูลที่ส่งกลับ
     onUpdatePassenger(updatedPassenger);
     onClose();
   };

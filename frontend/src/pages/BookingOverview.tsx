@@ -15,10 +15,11 @@ import TopNavbar from "../components/TopNavBar";
 import { Link } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import EditPassenger from "../components/EditPassenger"; 
-import AddPassenger from "./AddnewPassenger";
+import AddPassenger from "../components/AddnewPassenger";
 import FlightInformation from "../components/FlightInformation"; // Import the new FlightInformation component
 
 interface Passenger {
+  id: string; 
   fullName: string;
   gender: 'Male' | 'Female';
   dob: string;
@@ -45,6 +46,7 @@ const getSeatClassVariant = (seatClass: Passenger["seatClass"]) => {
 const BookingOverview: React.FC = () => {
   const [passengers, setPassengers] = useState<Passenger[]>([
     {
+      id: "P003",
       fullName: "Thanrada Tungweerapornpong",
       seat: "A1",
       seatClass: "First Class",
@@ -55,6 +57,7 @@ const BookingOverview: React.FC = () => {
       passportnumber: "B1234567",
     },
     {
+      id: "P004",
       fullName: "Thanaphat Phomak",
       seat: "A2",
       seatClass: "First Class",
@@ -80,40 +83,58 @@ const BookingOverview: React.FC = () => {
     setIsEditModalOpen(true);
   };
   
+  const generateUniqueId = (): string => {
+    let idNumber = 1;
+    let newId = '';
+    const existingIds = new Set(passengers.map(p => p.id));
+    
+    do {
+      newId = `P${String(idNumber).padStart(3, '0')}`;
+      idNumber++;
+    } while (existingIds.has(newId));
+    
+    return newId;
+  };
+  
   const handleAdd = () => {
+    const newId = generateUniqueId(); // ใช้ id ที่ไม่ซ้ำจริง ๆ
     const newPassenger: Passenger = {
+      id: newId,
       fullName: "",
-      gender: "Male", 
+      gender: "Male",
       dob: "",
       nationality: "",
       passportnumber: "",
       seat: "",
-      seatClass: "Economy Class", 
+      seatClass: "Economy Class",
       baggageWeight: 0,
     };
     setSelectedPassenger(newPassenger);
-    setIsAddModalOpen(true); 
+    setIsAddModalOpen(true);
   };
+  
   
   const handleSave = (updatedPassenger: Passenger) => {
-    if (selectedPassenger) {
-      if (selectedPassenger.fullName && selectedPassenger.fullName !== "") {
-        setPassengers((prev) =>
-          prev.map((passenger) =>
-            passenger.fullName === updatedPassenger.fullName ? updatedPassenger : passenger
-          )
-        );
-      } else {
-        setPassengers((prev) => [...prev, updatedPassenger]);
-      }
-    }
+    setPassengers((prev) => {
+      const existingPassengerIndex = prev.findIndex(p => p.id === updatedPassenger.id);
   
+      if (existingPassengerIndex > -1) {
+        // Update the existing passenger
+        prev[existingPassengerIndex] = updatedPassenger;
+      } else {
+        // If no existing passenger with this ID, add the new passenger
+        prev.push(updatedPassenger);
+      }
+      return [...prev]; // Ensure the array is a new reference to trigger re-render
+    });
+  
+    // Close the modals after saving
     setIsEditModalOpen(false);
     setIsAddModalOpen(false);
-    setSelectedPassenger(null);
+    setSelectedPassenger(null); // Reset selected passenger
   };
-
-  return (
+  
+ return (
     <div className="flex min-h-screen font-sans">
       <Navbar />
       <div className="flex-1 flex flex-col bg-[#FAF9F8]">
@@ -193,7 +214,8 @@ const BookingOverview: React.FC = () => {
                   <TableHead className="text-center">Full Name</TableHead>
                   <TableHead className="text-center">Seat</TableHead>
                   <TableHead className="text-center">Seat Class</TableHead>
-                  <TableHead className="text-center">Baggage Weight</TableHead>
+                  <TableHead className="text-center">Baggage Weight</TableHead>                 
+                  <TableHead className="text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -237,11 +259,14 @@ const BookingOverview: React.FC = () => {
       {isAddModalOpen && selectedPassenger && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-8">
           <div className="bg-white p-8 rounded-lg w-full max-w-lg sm:max-w-xl relative">
-            <AddPassenger
-              passenger={selectedPassenger}
-              onUpdatePassenger={handleSave}
-              onClose={() => setIsAddModalOpen(false)}
-            />
+          <AddPassenger
+            passenger={selectedPassenger}
+            onUpdatePassenger={handleSave} // ✅ ใช้ฟังก์ชันที่มีอยู่แล้ว
+            onClose={() => {
+              setIsAddModalOpen(false);     // ✅ ปิด modal
+              setSelectedPassenger(null);   // ✅ ล้างข้อมูล
+            }}
+          />
           </div>
         </div>
       )}
@@ -255,7 +280,8 @@ const BookingOverview: React.FC = () => {
               onUpdatePassenger={handleSave}
               onClose={() => setIsEditModalOpen(false)}
             />
-          </div>
+        </div>
+		
         </div>
       )}
     </div>
