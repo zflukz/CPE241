@@ -1,13 +1,54 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
+import { useNavigate } from 'react-router-dom';
 import TripInputSection from "./TripInputSection"; // Importing the TripInputSection component
+interface AirportOption {
+  label: string;
+  value: string;
+}
+interface Airport {
+  airportLabel: string;
+  airportID: string;
+}
 
 const TripSearchForm: React.FC = () => {
+  
+  const navigate = useNavigate();
+  
   const [isMoreTrip, setIsMoreTrip] = useState<boolean>(false); // Track whether the user wants multiple trips
   const [tripCount, setTripCount] = useState<number>(1); // Number of trips the user wants to enter
   const [trips, setTrips] = useState<{ from: string; to: string; departDate: string; returnDate: string }[]>([
     { from: "", to: "", departDate: "", returnDate: "" },
   ]); // State for trips
   const [isRoundTripArray, setIsRoundTripArray] = useState<boolean[]>([false]); // Track round-trip status for each trip
+  
+
+  const [airports, setAirports] = useState<AirportOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchAirports = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/airports");
+        if (!response.ok) throw new Error("Failed to fetch airports");
+        const data: Airport[] = await response.json();
+        const airportOptions = data.map((item: Airport): AirportOption => ({
+          label: item.airportLabel,
+          value: item.airportID,
+        }));
+        // console.log("AirportOption",airportOptions);
+        setAirports(airportOptions);
+        // console.log(airports);
+        
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAirports();
+    // console.log("Airport",airports);
+  }, []);
+
 
   // Update trip details
   const updateTrip = (index: number, field: string, value: string) => {
@@ -17,7 +58,7 @@ const TripSearchForm: React.FC = () => {
       return updatedTrips;
     });
   };
-
+  
   // Swap trip locations (from <-> to)
   const swapLocations = (index: number) => {
     setTrips((prevTrips) => {
@@ -32,6 +73,28 @@ const TripSearchForm: React.FC = () => {
       return updatedTrips;
     });
   };
+  const SearchClick = () =>{
+    console.log(trips);
+    navigate('/serachflight', {
+      state: {
+        trips,
+        airports,
+      },
+    });
+  }
+
+  useEffect(() => {
+    if (isMoreTrip) {
+      // setTripCount(1);
+      setTrips([{ from: "", to: "", departDate: "", returnDate: "" }]);
+      setIsRoundTripArray([false]);
+    } else {
+      // Reset to single trip when switching back
+      setTripCount(1);
+      setTrips([{ from: "", to: "", departDate: "", returnDate: "" }]);
+      setIsRoundTripArray([false]);
+    }
+  }, [isMoreTrip]);
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-[1400px] mx-auto mt-[60px]">
@@ -98,6 +161,9 @@ const TripSearchForm: React.FC = () => {
               newArr[index] = !newArr[index];
               setIsRoundTripArray(newArr);
             }}
+            airports={airports}
+            loading ={loading}
+            error={error}
           />
         ))}
       </div>
@@ -115,7 +181,7 @@ const TripSearchForm: React.FC = () => {
             <span className="ml-2">▼</span>
           </div>
         </div>
-        <button className="bg-orange-500 text-white px-8 py-2 rounded-lg flex items-center">
+        <button className="bg-orange-500 text-white px-8 py-2 rounded-lg flex items-center" onClick={SearchClick}>
           <span className="mr-2">🔍</span>
           <span>ค้นหา</span>
         </button>

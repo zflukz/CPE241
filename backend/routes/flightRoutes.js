@@ -1,13 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const flightController = require('../controllers/flightController');
+const flightController = require('../controllers/flightController.js');
 
 router.post('/', flightController.createFlight);
 router.get('/', flightController.getFlights);
-router.get('/search', flightController.searchFlightOneWay);
-router.get('/search2', flightController.searchFlightRoundTrip);
-router.get('/money',flightController.searchByMoney);
-//router.delete('/:flightID',flig htController.deleteFlightByID);
+router.get('/search/route', flightController.searchByRoute);
+router.get('/search/roundtrip', flightController.searchRoundTrip);
+router.get('/search/price', flightController.searchByPrice);
+router.delete('/:id', flightController.deleteFlight);
+router.get('/overview',flightController.flightInformation);
+router.get('/overview/:flightID',flightController.flightInformationByID);
+//router.delete('/:flightID',flig htflightController.deleteFlightByID);
 
 module.exports = router;
 

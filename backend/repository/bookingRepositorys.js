@@ -1,0 +1,95 @@
+const db = require('../config/db.js');
+
+exports.getBooking = async () => {
+  const [rows] = await db.query(`SELECT * FROM Bookings`);
+  return rows;
+};
+
+exports.getLastBookingID = async () => {
+  const [rows] = await db.execute('SELECT MAX(bookingID) as lastID FROM Bookings');
+  return rows[0].lastID;
+};
+
+exports.createBooking = async (bookingID, userID, flightID, bookingDate, bookingStatus) => {
+  await db.execute(
+    `INSERT INTO Bookings (bookingID, userID, flightID, bookingDate, bookingStatus)
+     VALUES (?, ?, ?, ?, ?)`,
+    [bookingID, userID, flightID, bookingDate, bookingStatus]
+  );
+};
+
+exports.bookingList = async () => {
+  const [rows] = await db.query(`
+    SELECT 
+      b.bookingID,
+      b.bookingDate,
+      b.flightID,
+      COUNT(bp.passengerID) AS passengerCount,
+      b.bookingStatus,
+      GROUP_CONCAT(CONCAT(p.passengerFirstname, ' ', p.passengerLastname) SEPARATOR ', ') AS passengerNames
+    FROM Bookings b
+    JOIN BookingPassengers bp ON b.bookingID = bp.bookingID
+    JOIN Passengers p ON bp.passengerID = p.passengerID
+    GROUP BY b.bookingID, b.bookingDate, b.flightID, b.bookingStatus
+  `);
+  return rows;
+};
+
+exports.editBookingTransaction = async (dbPool, data) => {
+  const connection = await dbPool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    await connection.query(
+      `UPDATE Bookings SET bookingStatus = ? WHERE bookingID = ?`,
+      [data.bookingStatus, data.bookingID]
+    );
+
+    for (const passenger of data.passengers) {
+      await connection.query(
+        `UPDATE Passengers 
+         SET passengerFirstname = ?, passengerLastname = ?, sex = ?, birthDate = ?, nationality = ?, phoneNumber = ?, passportNumber = ?
+         WHERE passengerID = ?`,
+        [
+          passenger.passengerFirstname,
+          passenger.passengerLastname,
+          passenger.sex,
+          passenger.birthDate,
+          passenger.nationality,
+          passenger.phoneNumber,
+          passenger.passportNumber,
+          passenger.passengerID,
+        ]
+      );
+    }
+
+    await connection.query(
+      `UPDATE Payments SET amount = ?, paymentMethod = ?, paymentStatus = ? WHERE bookingID = ?`,
+      [data.payment.amount, data.payment.paymentMethod, data.payment.paymentStatus, data.bookingID]
+    );
+
+    if (data.flight) {
+      await connection.query(
+        `UPDATE Flights 
+         SET source = ?, destination = ?, departTime = ?, availableSeats = ?, airlineID = ?
+         WHERE flightID = ?`,
+        [
+          data.flight.source,
+          data.flight.destination,
+          data.flight.departTime,
+          data.flight.availableSeats,
+          data.flight.airlineID,
+          data.flight.flightID,
+        ]
+      );
+    }
+
+    await connection.commit();
+    connection.release();
+    return { success: true };
+  } catch (err) {
+    await connection.rollback();
+    connection.release();
+    throw err;
+  }
+};

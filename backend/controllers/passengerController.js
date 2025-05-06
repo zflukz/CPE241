@@ -1,4 +1,4 @@
-const passengerModel = require('../models/passengerModel');
+const passengerModel = require('../repository/passengerRepositorys.js');
 
 
 
@@ -28,7 +28,8 @@ exports.createPassenger = async (req, res) => {
     sex,
     birthDate,
     nationality,
-    phoneNumber
+    phoneNumber,
+    passportNumber
   } = req.body;
 
   try {
@@ -38,9 +39,9 @@ exports.createPassenger = async (req, res) => {
 
     
     await db.query(
-      `INSERT INTO Passengers (passengerID, passengerFirstname, passengerLastname, sex, birthDate, nationality, phoneNumber)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [passengerID, passengerFirstname, passengerLastname, sex, birthDate, nationality, phoneNumber]
+      `INSERT INTO Passengers (passengerID, passengerFirstname, passengerLastname, sex, birthDate, nationality, phoneNumber, passportNumber)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [passengerID, passengerFirstname, passengerLastname, sex, birthDate, nationality, phoneNumber, passportNumber]
     );
 
     //สร้าง UserPassenger

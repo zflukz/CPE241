@@ -1,148 +1,79 @@
-const flightModel = require('../models/flightModels.js');
+const flightService = require('../services/flightServices.js');
 
 exports.createFlight = async (req, res) => {
   try {
-    const flightID = await flightModel.createFlight(req.body);
-    res.status(201).json({ message: 'Flight created', flightID });
+    const flightCode = await flightService.createFlight(req.body);
+    res.status(201).json({ flightCode });
   } catch (err) {
-    console.log(err)
-    res.status(500).json({ error: 'Error creating flight' });
+    res.status(500).json({ error: err.message });
   }
 };
 
 exports.getFlights = async (req, res) => {
   try {
-    const flights = await flightModel.getFlights();
-    res.status(200).json(flights);
+    const flights = await flightService.getAllFlights();
+    res.json(flights);
   } catch (err) {
-    res.status(500).json({ error: 'Error fetching flights' });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.searchByRoute = async (req, res) => {
+  try {
+    const { source, destination, departDate } = req.query;
+    const flights = await flightService.findFlightsByRoute(source, destination, departDate);
+    res.json(flights);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.searchRoundTrip = async (req, res) => {
+  try {
+    const { departDate, returnDate } = req.query;
+    const flights = await flightService.findRoundTripFlights(departDate, returnDate);
+    res.json(flights);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.searchByPrice = async (req, res) => {
+  try {
+    const { min, max } = req.query;
+    const flights = await flightService.findFlightsByPrice(min, max);
+    res.json(flights);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deleteFlight = async (req, res) => {
+  try {
+    await flightService.removeFlight(req.params.id);
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
 
-exports.searchFlightOneWay = async (req,res)=>{
-  const {source, destination, departTime} = req.query;
 
-  if(!source || !destination || !departTime ){
-    return res.status(400).json({
-      message :'specify source destination departTime'
-    })
+exports.flightInformation = async (req, res) => {
+  try {
+    const flights = await flightService.flightInformation();
+    res.json(flights);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  
-  try{
-    const flights = await flightModel.searchFlightsByRoute(req.db, source, destination, departTime);
-    
-    if(!flights || flights.length == 0){
-      return res.status(404).json({
-        message:'not found'
-      })
-    }
-    res.json({
-      message:"success to get flight",
-      flights,
-    });
+};
+
+exports.flightInformationByID = async (req, res) => {
+  try {
+    const { flightID } = req.params; 
+    const flights = await flightService.flightInformationByID(flightID);
+    res.json(flights);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-  catch(err){
-    console.log("Error: ",err)
-    res.status(500).json({
-      message : "Error on system",
-    });
-  }
-  
-  
-}
-
-exports.searchFlightRoundTrip = async (req,res)=>{
-  const {departTime, arrivalTime} = req.query;
-
-  if(!departTime || !arrivalTime ){
-    return res.status(400).json({
-      message :'specify departTime and arrivalTime'
-    })
-  }
-  
-  try{
-    const flights = await flightModel.searchFlightsRoundTrip(req.db, departTime, arrivalTime);
-    
-    if(!flights || flights.length == 0){
-      return res.status(404).json({
-        message:'not found'
-      })
-    }
-    res.json({
-      message:"success to get flight",
-      flights,
-    });
-  }
-  catch(err){
-    console.log("Error : ",err)
-    res.status(500).json({
-      message : "Error on system",
-    });
-  }
-  
-  
-}
-
-exports.searchByMoney = async (req,res) => {
-  const {money1, money2} = req.query;
-
-  if(!money1 || !money2 ){
-    return res.status(400).json({
-      message :'specify Money'
-    })
-  }
-  
-  try{
-    const flights = await flightModel.searchByMoney(req.db, money1, money2);
-    
-    if(!flights || flights.length == 0){
-      return res.status(404).json({
-        message:'not found'
-      })
-    }
-    res.json({
-      message:"success to get flight",
-      flights,
-    });
-  }
-  catch(err){
-    console.log("Error : ",err)
-    res.status(500).json({
-      message : "Error on system",
-    });
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.deleteFlight = (req,res)=>{
-  const flightID = req.params.id;
-  flightModel.deleteFlightByID(flightID, (err, result)=>{
-    if(err){
-      console.log("Delete error: ",err);
-      return res.status(500).json({message : "Delete error"});
-    }
-    
-    if(result.affectedRows == 0){
-      return res.status(404).json({message : "Flight not found"});
-
-    }
-
-    res.json({message : "Delete success"});
-
-  });
 };

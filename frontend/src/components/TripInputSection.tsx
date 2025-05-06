@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface Trip {
   from: string;
@@ -15,6 +14,19 @@ interface TripInputSectionProps {
   updateTrip: (index: number, field: string, value: string) => void;
   swapLocations: (index: number) => void;
   toggleRoundTrip: (index: number) => void;
+  airports: AirportOption[];
+  loading: boolean;
+  error: string | null;
+}
+
+interface Airport {
+  airportLabel: string;
+  airportID: string;
+}
+
+interface AirportOption {
+  label: string;
+  value: string;
 }
 
 const TripInputSection: React.FC<TripInputSectionProps> = ({
@@ -24,33 +36,12 @@ const TripInputSection: React.FC<TripInputSectionProps> = ({
   updateTrip,
   swapLocations,
   toggleRoundTrip,
+  airports,
+  error,
+  loading
 }) => {
-    const [airports, setAirports] = useState<string[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    useEffect(() => {
-    const fetchAirports = async () => {
-      try {
-        const response = await fetch('http://localhost:8000/api/airports');
-        if (!response.ok) throw new Error('Failed to fetch airports');
-        const data = await response.json();
-        console.log('Airports fetched:', data);
-        const airportLabels = (data as Array<{ airportLabel: string }>).map(
-          item => item.airportLabel
-        );
-        console.log('Airports data:', airportLabels);
-        setAirports(airportLabels);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    };
+  
 
-    fetchAirports();
-  }, []);
-    
-  // Safety check in case the trip is not defined
   if (!trip) return null;
 
   return (
@@ -63,16 +54,18 @@ const TripInputSection: React.FC<TripInputSectionProps> = ({
           <div className="bg-gray-100 p-2 rounded flex items-center h-12">
             <span className="text-blue-600 mr-2">✈️</span>
             <select
-            className="bg-transparent outline-none w-full h-full"
-            value={trip.from || ""}
-            onChange={(e) => updateTrip(i, "from", e.target.value)}
+              className="bg-transparent outline-none w-full h-full"
+              value={trip.from || ""}
+              onChange={(e) => updateTrip(i, "from", e.target.value)}
             >
-            <option value="">Select a location</option>
-            {!error && !loading && airports.map((airport, index) => (
-                <option key={index} value={airport}>
-                {airport}
-                </option>
-            ))}
+              <option value="">Select a location</option>
+              {!error &&
+                !loading &&
+                airports.map((airport) => (
+                  <option key={airport.value} value={airport.value}>
+                    {airport.label}
+                  </option>
+                ))}
             </select>
           </div>
         </div>
@@ -98,11 +91,13 @@ const TripInputSection: React.FC<TripInputSectionProps> = ({
               onChange={(e) => updateTrip(i, "to", e.target.value)}
             >
               <option value="">Select a location</option>
-              {!error && !loading && airports.map((airport, index) => (
-                <option key={index} value={airport}>
-                {airport}
-                </option>
-            ))}
+              {!error &&
+                !loading &&
+                airports.map((airport) => (
+                  <option key={airport.value} value={airport.value}>
+                    {airport.label}
+                  </option>
+                ))}
             </select>
           </div>
         </div>

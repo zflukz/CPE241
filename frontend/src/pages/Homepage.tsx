@@ -4,6 +4,7 @@ import TopAfterLoginNavbar from '../components/TopNavbar-AfterLogin';
 import TripSearchForm from '../components/TripSearchForm';
 
 const TravelokaHomepage = () => {
+  
   return (
     <div className="min-h-screen bg-[#FAF9F8] font-sans">
       <TopAfterLoginNavbar />

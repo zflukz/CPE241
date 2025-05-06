@@ -11,4 +11,9 @@ export interface Flight {
 	date: string;
 	icons: string[];
   }
-  
+  export interface BookingId {
+	userID: string;
+	flightID: string;
+	bookingDate: string;
+	bookingStatus: 'confirmed' | 'pending' | 'canceled';
+  }

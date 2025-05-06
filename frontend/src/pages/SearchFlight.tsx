@@ -9,7 +9,7 @@ import SearchFlightCard from '../components/SearchInSearchFlight';
 import { FaSearch } from 'react-icons/fa';
 import PopupChangeSearch from '../components/PopupChangeSearch';
 import ReviewPopup from './ReviewPopup';
-
+import { useLocation,useNavigate } from 'react-router-dom';
 const flightsData: Flight[] = [
   {
     id: 1,
@@ -36,15 +36,96 @@ const flightsData: Flight[] = [
     icons: ['wifi', 'enter', 'shopping'],
   },
 ];
-
-const FlightSearchPage: React.FC = () => {
+interface BookingId {
+  userID: string;
+  flightID: string;
+  bookingDate: string;
+  bookingStatus: 'confirmed' | 'pending' | 'canceled';
+}
+  const FlightSearchPage: React.FC = () => {
+  const [bookingId,setbooking] = useState<BookingId>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state as { trips: { from: string; to: string; departDate: string; returnDate: string }[] , airports: {label: string;value: string;}[]};
   const [selectedDate, setSelectedDate] = useState('Tue, 6 Jan');
   const [hovered, setHovered] = useState(false);
   const [selectedStep, setSelectedStep] = useState<0 | 1 | null>(0);
   const [selectedFlights, setSelectedFlights] = useState<(Flight | null)[]>([null, null]);
   const [isSearchPopupOpen, setIsSearchPopupOpen] = useState(false);
   const [showReviewPopup, setShowReviewPopup] = useState(false);
+  const fromAirport = state.airports.find(a => a.value === state.trips[0].from);
+  const toAirport = state.airports.find(a => a.value === state.trips[0].to);
+  const [flights, setFlights] = useState<Flight[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const getDuration = (departTimeStr: string, arrivalTimeStr: string): string => {
+    const depart = new Date(departTimeStr);
+    const arrival = new Date(arrivalTimeStr);
+    const diffMs = arrival.getTime() - depart.getTime(); // difference in milliseconds
+  
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  
+    // Pad with leading zero if needed
+    const hoursStr = diffHours.toString().padStart(2, '0');
+    const minutesStr = diffMinutes.toString().padStart(2, '0');
+  
+    return `${hoursStr}:${minutesStr}`;
+  };
+  const onclick = () =>{
+    const nowtimestamp = new Date().toISOString();
+    const booked: BookingId[] = flights.map((item: any): BookingId => ({
+      userID: "U001",
+      flightID: item.id,
+      bookingDate: nowtimestamp,
+      bookingStatus: 'pending'
+   }));
+  navigate('/booking',{state: bookingId})
+  }
+  useEffect(() => {
+    const fetchFlights = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/api/flights/search/route?source=${state.trips[0].from}&destination=${state.trips[0].to}&departDate=${state.trips[0].departDate}`);
+        if (!response.ok) throw new Error("Failed to fetch flights");
+        
+        const data = await response.json();
+        const mappedFlights: Flight[] = data.map((item: any): Flight => ({
+          id: item.flightID,
+          airline: item.label, // you might replace this with airline name later
+          departuretime: item.departTime.slice(11, 16),
+          arrivaltime: item.arrivalTime.slice(11, 16),
+          duration: getDuration(item.departTime, item.arrivalTime), // you can calculate duration if needed
+          price: item.price,
+          departure: item.source,
+          arrival: item.destination,
+          date: item.departTime.split("T")[0],
+          icons: ['wifi', 'meal', 'shopping'], // fill this if you have icons info
+        }));
+  
+        setFlights(mappedFlights);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchFlights();
+      }, []);
+  
 
+
+  useEffect(() => {
+      console.log("Updated flights:", flights);   
+    }, [flights]);
+
+    useEffect(() => {
+      console.log("Updated airports:", state);
+      console.log("From:", fromAirport?.label);
+      console.log("To:", toAirport?.label);
+    }, [state]);
+
+  
   // Calculate total selected flight price as a number
   const selectedFlightPrice = flightsData.reduce((sum, flight) => {
     if (flight) {
@@ -117,9 +198,7 @@ const FlightSearchPage: React.FC = () => {
                   selectedFlights={selectedFlights}
                   selectedFlightPrice={selectedFlightPrice}
                   onClose={() => setShowReviewPopup(false)}
-                  onContinue={() => {
-                    console.log("Go to next step!");
-                  }}
+                  onContinue={onclick}
                 />
               )}
 
@@ -128,7 +207,7 @@ const FlightSearchPage: React.FC = () => {
                   <div className="bg-[#C84B2F]/10 p-4 rounded-[10px] mb-4 w-fit">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h2 className="font-bold">Bangkok (DMK) → Seoul (ICN)</h2>
+                        <h2 className="font-bold">{fromAirport?.label} → {toAirport?.label}</h2>
                         <p className="text-sm text-[#363635]">
                           {flightsData[selectedStep ?? 0]?.date} | 2 passenger(s) | Economy
                         </p>
@@ -165,7 +244,7 @@ const FlightSearchPage: React.FC = () => {
 
               {selectedStep !== null && (
                 <div className="space-y-4">
-                  {flightsData.map((flight, idx) => (
+                  {flights.map((flight, idx) => (
                     <div
                       key={flight.id}
                       className="border-[1.5px] rounded-[10px] hover:border-[#C84B2F] border-transparent transition duration-200"

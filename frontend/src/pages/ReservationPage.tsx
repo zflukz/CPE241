@@ -2,24 +2,71 @@ import React from 'react';
 import { useState } from 'react';
 import TopNavbar from '../components/TopNavbar-AfterLogin';
 import { FaRegCalendarAlt } from 'react-icons/fa';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 
 type ReservationProps = {
   passengerCount?: number; // optional
   flightClass?: string;    // optional
 };
 
-
+interface Passenger {
+  firstName: string;
+  lastName: string;
+  birth: string;
+  nationality: string;
+  passport: string;
+  countryIssue: string;
+  passportExpired: string;
+  sex : string;
+  phonenumber : string;
+}
 
 export default function ReservationPage({
   passengerCount = 1,
   flightClass = 'Economy',
 }: ReservationProps) {
-
+  const location = useLocation();
+  const state = location.state as { booking: { fuserID: string;flightID: string;bookingDate: string;bookingStatus: 'confirmed' | 'pending' | 'canceled'; }[] };
   const navigate = useNavigate();
-  const handleClick = () => {
-    navigate('/Loading');
+
+  const [passengers, setPassengers] = useState<Passenger[]>(
+    Array.from({ length: passengerCount }, () => ({
+      firstName: '',
+      lastName: '',
+      birth: '',
+      nationality: '',
+      passport: '',
+      countryIssue: '',
+      passportExpired: '',
+      phonenumber: '',
+      sex : ''
+    }))
+  );
+
+  const handleInputChange = (
+    index: number,
+    field: keyof Passenger,
+    value: string
+  ) => {
+    const updatedPassengers = [...passengers];
+    updatedPassengers[index][field] = value;
+    setPassengers(updatedPassengers);
   };
+
+  const handleClick = () => {
+    const bookingData = {
+      userID: 'U001',
+      flightID: 'F123',
+      bookingDate: new Date().toISOString(),
+      bookingStatus: 'pending',
+      passengers,
+    };
+    navigate('/Loading', { state: {
+      bookingData,
+      passengers,
+    }});
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
       <TopNavbar />
@@ -56,8 +103,9 @@ export default function ReservationPage({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[30px]">
                   <div>
                   First Name (without title and punctuation)<br />
-                  <input className="input mt-4  border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="First Name"  
+                  <input className="input mt-4  border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="First Name"   
                   style={{width:'326px', height:'40px', padding:'15px'}} 
+                  onChange={(e) => handleInputChange(index-1, 'firstName', e.target.value)}
                   />
                   </div>
 
@@ -65,6 +113,7 @@ export default function ReservationPage({
                   Last Name (without title and punctuation)<br />
                   <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Last Name"  
                   style={{width:'326px', height:'40px', padding:'15px'}} 
+                  onChange={(e) => handleInputChange(index-1, 'lastName', e.target.value)}
                   />
                   </div>
 
@@ -72,36 +121,60 @@ export default function ReservationPage({
                   Date of Birth<br />
                   <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Date of Birth" type="date" 
                   style={{width:'326px', height:'40px', padding:'15px', }}
+                  onChange={(e) => handleInputChange(index-1, 'birth', e.target.value)}
                   />
                   </div>
 
                   <div>
                     Nationality<br />
                   <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F] " placeholder="Nationality" 
-                  style={{ width:'326px', height:'40px', padding:'15px', }} >
+                  style={{ width:'326px', height:'40px', padding:'15px', }} 
+                  onChange={(e) => handleInputChange(index-1, 'nationality', e.target.value)}
+                  >
+                    
                   </input>
                   </div>
 
                   <div>
                   Passport Number
                   <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Passport Number" 
-                  style={{width:'326px', height:'40px', padding:'15px', }} />
+                  style={{width:'326px', height:'40px', padding:'15px', }} 
+                  onChange={(e) => handleInputChange(index-1, 'passport', e.target.value)}
+                  />
                   </div>
 
                   <div>
                   Country of Issue
                   <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Country of Issue" 
-                  style={{width:'326px', height:'40px', padding:'15px', }} />
+                  style={{width:'326px', height:'40px', padding:'15px', }} onChange={(e) => handleInputChange(index-1, 'countryIssue', e.target.value)} />
                   </div>
 
                   <div>
                   Passport Expiry Date
                   <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Date of Birth" type="date" 
-                  style={{marginBottom: '15px', width:'326px', height:'40px', padding:'15px', }}
+                  style={{marginBottom: '15px', width:'326px', height:'40px', padding:'15px', }} onChange={(e) => handleInputChange(index-1, 'passportExpired', e.target.value)} 
                   />
                   </div>
-
-                  
+                  <div>
+                  PhoneNumber<br />
+                  <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="PhoneNumber"  
+                  style={{width:'326px', height:'40px', padding:'15px'}} 
+                  onChange={(e) => handleInputChange(index-1, 'phonenumber', e.target.value)}
+                  />
+                  </div>
+                  <div>
+                  Gender<br />
+                  <select
+                    className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
+                    style={{ width: '326px', height: '40px', padding: '10px' }}
+                    onChange={(e) => handleInputChange(index-1, 'sex', e.target.value)}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
                 </div>
               </div>
             ))}
