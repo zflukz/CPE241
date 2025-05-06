@@ -16,7 +16,7 @@ exports.createFlight = async (flightData) => {
     flightData.seat,
     flightData.facilities,
     flightData.flightStatus
-  ]);
+  ]); 
   return result.insertId;
 };
 
@@ -186,16 +186,16 @@ exports.updateFlight = async (flightID, data) => {
     arrivalTime,
     availableSeats,
     price,
-    seat,               // Seat Enum
-    flightStatus,       // FlightStatus Enum
-    inflightServices,   // Array เช่น ['meal', 'wifi']
+    seat,               
+    flightStatus,       
+    inflightServices,   
     gateID,
     terminalID,
     airportID,
     airlineID,
-    carryOnWeight,             // Decimal, ใช้กับ baggageOption (type: carryOn)
-    checkedBaggageWeight,      // Decimal
-    checkedBaggagePrice        // Decimal
+    carryOnWeight,             
+    checkedBaggageWeight,     
+    checkedBaggagePrice        
   } = data;
 
   //  Update Flight

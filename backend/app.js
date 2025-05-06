@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('./config/db.js');
-// const runPaymentCronJob = require('./cron/paymentCron.js');
 const cors = require('cors');
+
 const userRoutes = require('./routes/userRoutes.js');
 const flightRoutes = require('./routes/flightRoutes.js');
 const bookingRoutes = require('./routes/bookingRoutes.js')
@@ -10,16 +10,16 @@ const airlinesRoutes = require('./routes/airlineRoutes.js');
 const airportRoutes = require('./routes/airportRoutes.js');
 const adminRoutes = require('./routes/adminRoutes.js');
 const ticketRoutes = require('./routes/ticketRoutes.js');
-// const paymentRoutes = require('./routes/paymentRoutes.js');
+const paymentRoutes = require('./routes/paymentRoutes.js');
 
 
 
 const app = express();
+
+app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:3000',
 }));
-app.use(express.json());
-
 // ทำให้ req.db ใช้งานได้ในทุก route
 app.use((req, res, next) => {
   req.db = db;
@@ -36,9 +36,10 @@ app.use('/api/airlines' , airlinesRoutes);
 app.use('/api/airports', airportRoutes);
 app.use('/api/admins', adminRoutes);
 app.use('/api/tickets',ticketRoutes);
-// app.use('/api/payments',paymentRoutes);
+app.use('/api/payments',paymentRoutes);
 
-// runPaymentCronJob();
+require('./cron/paymentCron.js');
+
 
 const PORT = 8000;
 app.listen(PORT, () => {

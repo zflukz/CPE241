@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import TopNavbar from '../components/TopNavbar-AfterLogin';
 import { FaRegCalendarAlt } from 'react-icons/fa';
 import { useNavigate,useLocation } from "react-router-dom";
-
+import {Flight} from './FlightType';
 type ReservationProps = {
   passengerCount?: number; // optional
   flightClass?: string;    // optional
@@ -26,9 +26,9 @@ export default function ReservationPage({
   flightClass = 'Economy',
 }: ReservationProps) {
   const location = useLocation();
-  const state = location.state as { booking: { fuserID: string;flightID: string;bookingDate: string;bookingStatus: 'confirmed' | 'pending' | 'canceled'; }[] };
+  const state = location.state as { booked: { userID: string;flightID: string;bookingDate: string;bookingStatus: 'confirmed' | 'pending' | 'canceled'; }[],flight :Flight };
   const navigate = useNavigate();
-
+    
   const [passengers, setPassengers] = useState<Passenger[]>(
     Array.from({ length: passengerCount }, () => ({
       firstName: '',
@@ -56,14 +56,17 @@ export default function ReservationPage({
   const handleClick = () => {
     const bookingData = {
       userID: 'U001',
-      flightID: 'F123',
-      bookingDate: new Date().toISOString(),
+      flightID: state.booked[0].flightID,
+      bookingDate: new Date().toISOString()
+      .replace('T', ' ')
+      .replace(/\.\d{3}Z$/, ''),
       bookingStatus: 'pending',
       passengers,
     };
     navigate('/Loading', { state: {
       bookingData,
       passengers,
+      flight: state.flight,
     }});
   };
 

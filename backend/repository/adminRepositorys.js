@@ -83,3 +83,28 @@ exports.top3RoutesRevenue = async () => {
   `);
   return rows;
 };
+
+
+
+exports.customerProfile = async (bookingID) => {
+  const [rows] = await db.query(`
+    SELECT 
+      f.label,
+      al.airlineName,
+      f.source,
+      f.destination,
+      f.departTime,
+      f.arrivalTime,
+      bp.seatNumber,
+      CONCAT(p.passengerFirstname, ' ', p.passengerLastname) AS passengerFullname,
+      f.seat AS seatClass
+    FROM BookingPassengers bp
+    JOIN Passengers p ON bp.passengerID = p.passengerID
+    JOIN Bookings b ON bp.bookingID = b.bookingID
+    JOIN Flights f ON b.flightID = f.flightID
+    JOIN Airlines al ON f.airlineID = al.airlineID -- แก้ตรงนี้ถ้าคุณมีตาราง Airlines
+    WHERE b.bookingID = ?
+  `, [bookingID]);
+
+  return rows;
+};

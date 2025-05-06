@@ -27,3 +27,22 @@ exports.getDashboardStats = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+exports.getCustomerProfile = async (req, res) => {
+  try {
+    const { bookingID } = req.params;
+
+    const profile = await service.getCustomerProfile(bookingID);
+
+    res.status(200).json({
+      success: true,
+      data: profile
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};

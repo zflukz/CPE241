@@ -1,20 +1,23 @@
 const paymentService = require('../services/paymentServices');
+const paymentRepo = require('../repository/paymentRepositorys');
 
-exports.create = async (req, res) => {
+// สำหรับสร้าง payment (เมื่อมี booking ใหม่)
+exports.createPayment = async (req, res) => {
+  const { bookingID , amount, paymentMethod} = req.body;
   try {
-    const { bookingID, amount, method } = req.body;
-    const paymentID = await paymentService.createPayment(bookingID, amount, method);
-    res.status(201).json({ paymentID });
+    const paymentID = await paymentService.createPayment(bookingID, amount, paymentMethod);
+    res.status(201).json({ paymentID, status: 'pending' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-exports.confirm = async (req, res) => {
+// สำหรับ “จ่าย” payment (เปลี่ยนสถานะเป็น paid)
+exports.payPayment = async (req, res) => {
+  const paymentID = req.params.id;
   try {
-    const { paymentID } = req.body;
-    await paymentService.confirmPayment(paymentID);
-    res.status(200).json({ message: 'Payment confirmed.' });
+    await paymentRepo.updatePaymentStatus(paymentID, 'paid');
+    res.status(200).json({ paymentID, status: 'paid' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -73,14 +73,16 @@ interface BookingId {
     return `${hoursStr}:${minutesStr}`;
   };
   const onclick = () =>{
-    const nowtimestamp = new Date().toISOString();
+    const nowtimestamp = new Date().toISOString()
+    .replace('T', ' ')
+    .replace(/\.\d{3}Z$/, '');
     const booked: BookingId[] = flights.map((item: any): BookingId => ({
       userID: "U001",
       flightID: item.id,
       bookingDate: nowtimestamp,
       bookingStatus: 'pending'
    }));
-  navigate('/booking',{state: bookingId})
+  navigate('/booking',{state: {booked,flight: flights[0]}})
   }
   useEffect(() => {
     const fetchFlights = async () => {

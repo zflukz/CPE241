@@ -1,17 +1,12 @@
 const cron = require('node-cron');
 const paymentService = require('../services/paymentServices');
 
-const runPaymentCronJob = () => {
-  cron.schedule('* * * * *', async () => {
-    try {
-      const count = await paymentService.failExpiredPayments();
-      if (count > 0) {
-        console.log(`[CRON] Marked ${count} expired payments as failed.`);
-      }
-    } catch (err) {
-      console.error('[CRON ERROR]', err.message);
-    }
-  });
-};
-
-module.exports = runPaymentCronJob;
+// รันทุก 1 นาที
+cron.schedule('* * * * *', async () => {
+  try {
+    await paymentService.markExpiredPendingPayments();
+    console.log('[CronJob] Checked for expired payments');
+  } catch (err) {
+    console.error('[CronJob] Error checking expired payments:', err.message);
+  }
+});
