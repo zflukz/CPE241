@@ -28,3 +28,14 @@ exports.getCustomerProfile = async (bookingID) => {
 
   return await repo.customerProfile(bookingID);
 };
+
+//---------------------------------Reported------------------------------------------------//
+exports.flightPerformance = async (startDate, endDate) => {
+  return await repo.getFlightRoutePerformance(startDate, endDate);
+};
+exports.bookingSummary = async (startDate, endDate) => {
+  return await repo.getFlightSummary(startDate, endDate);
+};
+
+
+//---------------------------------Reported------------------------------------------------//

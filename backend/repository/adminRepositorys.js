@@ -108,3 +108,67 @@ exports.customerProfile = async (bookingID) => {
 
   return rows;
 };
+
+//---------------------------------Reported------------------------------------------------//
+exports.getFlightRoutePerformance = async (startDate, endDate) => {
+  const [rows] = await db.query(`
+    SELECT
+      src.airportLabel AS sourceAirport,
+      dest.airportLabel AS destinationAirport,
+      COUNT(DISTINCT f.flightID) AS totalFlights,
+      COUNT(DISTINCT fs.scheduleID) AS totalSchedules,
+      COUNT(DISTINCT b.bookingID) AS totalBookings,
+      COUNT(DISTINCT t.ticketID) AS totalTickets,
+      COUNT(DISTINCT bp.passengerID) AS totalPassengers,
+      COALESCE(SUM(p.amount), 0) AS totalRevenue,
+      ROUND(
+        (COUNT(DISTINCT bp.passengerID) / SUM(f.availableSeats)) * 100,
+        2
+      ) AS loadFactorPercent,
+      ROUND(
+        (SUM(CASE WHEN f.flightStatus = 'cancel' THEN 1 ELSE 0 END) / COUNT(f.flightID)) * 100,
+        2
+      ) AS cancelRatePercent,
+      ROUND(
+        (SUM(CASE WHEN f.flightStatus = 'delay' THEN 1 ELSE 0 END) / COUNT(f.flightID)) * 100,
+        2
+      ) AS delayRatePercent
+    FROM Flights f
+    JOIN Airports src ON f.source = src.airportID
+    JOIN Airports dest ON f.destination = dest.airportID
+    LEFT JOIN FlightSchedules fs ON f.flightID = fs.flightID
+    LEFT JOIN Bookings b ON f.flightID = b.flightID
+    LEFT JOIN BookingPassengers bp ON b.bookingID = bp.bookingID
+    LEFT JOIN Payments p ON b.bookingID = p.bookingID
+    LEFT JOIN Tickets t ON b.bookingID = t.bookingID
+    WHERE fs.scheduleDate BETWEEN ? AND ?
+    GROUP BY f.source, f.destination
+  `, [startDate, endDate]);
+
+  return rows;
+};
+
+
+
+
+exports.getFlightSummary = async (startDate, endDate) => {
+  const [rows] = await db.query(`
+    SELECT 
+      DATE_FORMAT(fs.scheduleDate, '%Y-%m-%d') AS date,
+      COUNT(DISTINCT b.bookingID) AS totalBooking,
+      SUM(CASE WHEN b.bookingStatus = 'confirmed' THEN 1 ELSE 0 END) AS completedBooking,
+      SUM(CASE WHEN b.bookingStatus = 'canceled' THEN 1 ELSE 0 END) AS canceledBooking,
+      COALESCE(SUM(CASE WHEN b.bookingStatus = 'confirmed' THEN p.amount ELSE 0 END), 0) AS revenue
+    FROM Bookings b
+    JOIN Flights f ON b.flightID = f.flightID
+    JOIN FlightSchedules fs ON f.flightID = fs.flightID
+    LEFT JOIN Payments p ON b.bookingID = p.bookingID
+    WHERE fs.scheduleDate BETWEEN ? AND ?
+    GROUP BY fs.scheduleDate
+    ORDER BY fs.scheduleDate ASC
+  `, [startDate, endDate]);
+  return rows;
+};
+
+
+//---------------------------------Reported------------------------------------------------//
