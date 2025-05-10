@@ -8,8 +8,12 @@ module.exports = {
         highlight: {
           grey: "#D4D4D4"
         }
+      },
+      fontFamily: {
+        sans: ['Geologica', 'sans-serif'],  // เพิ่มตรงนี้!
       }
     },
   },
   plugins: [],
 }
+

@@ -8,7 +8,7 @@ import { AiFillPieChart } from "react-icons/ai";
 interface MenuItemProps {
   icon: React.ElementType;
   label: string;
-  path: string;
+  path?: string | string[]; // Make path optional
   customClick?: () => void;
   isExpanded?: boolean;
 }
@@ -16,39 +16,44 @@ interface MenuItemProps {
 const MenuItem: React.FC<MenuItemProps> = ({ icon: Icon, label, path, customClick, isExpanded }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isActive = location.pathname === path;
+
+  // Handle the case where path is not provided
+  const isActive = (paths: string | string[] | undefined) => {
+    if (!paths) return false; // If no path is provided, it's not active
+    if (Array.isArray(paths)) {
+      return paths.some((p) => location.pathname.startsWith(p)); // Check if path starts with any of the provided paths
+    }
+    return location.pathname.startsWith(paths); // If it's a single path, check if it starts with that path
+  };
 
   const handleClick = () => {
     if (customClick) {
       customClick();
-    } else {
-      navigate(path);
+    } else if (path) {
+      navigate(typeof path === "string" ? path : path[0]); // Navigate to the first path in the array if multiple paths are provided
     }
   };
 
   return (
     <div
-  onClick={handleClick}
-  className={`relative flex ${isExpanded ? "justify-start items-center pl-[30px]" : "justify-center items-center"} 
-    cursor-pointer px-1 py-1 w-full transition-all duration-300 
-    ${isActive ? "bg-[#D4D4D4]/20 px-3 py-3" : "hover:bg-[#D4D4D4]/20 px-3 py-3"} rounded-[9px]`}
->
-  {/* เส้นสีแดงและพื้นหลังที่ถูกซ่อนไว้ */}
-  <div
-    className={`absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-[60%] bg-[#C84B2F] rounded-full 
-      ${isActive ? "opacity-100" : "opacity-0"} transition-opacity duration-300`}
-  ></div>
+      onClick={handleClick}
+      className={`relative flex ${isExpanded ? "justify-start items-center pl-[30px]" : "justify-center items-center"} 
+        cursor-pointer px-1 py-1 w-full transition-all duration-300 
+        ${isActive(path) ? "bg-[#D4D4D4]/20 px-3 py-3" : "hover:bg-[#D4D4D4]/20 px-3 py-3"} rounded-[9px]`}
+    >
+      {/* Red line and background */}
+      <div
+        className={`absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-[60%] bg-[#C84B2F] rounded-full 
+          ${isActive(path) ? "opacity-100" : "opacity-0"} transition-opacity duration-300`}
+      ></div>
 
-  {/* ไอคอนที่ไม่ได้ลดขนาดและมี margin-right */}
-  <div className={`flex items-center ${isExpanded ? "mr-4" : ""}`}> {/* เพิ่ม mr-4 เพื่อห่างออกจากขวาเฉพาะตอนขยาย */}
-    <Icon className="transform scale-150 hover:scale-100 transition-all duration-300 z-10" />
-  </div>
+      {/* Icon with margin-right */}
+      <div className={`flex items-center ${isExpanded ? "mr-4" : ""}`}>
+        <Icon className="transform scale-150 hover:scale-100 transition-all duration-300 z-10" />
+      </div>
 
-  {isExpanded && <span className="z-10">{label}</span>}
-</div>
-
-
-
+      {isExpanded && <span className="z-10">{label}</span>}
+    </div>
   );
 };
 
@@ -63,7 +68,7 @@ const Navbar: React.FC = () => {
 
   return (
     <div
-      className={`font-sans font-light text-[16px] relative flex flex-col items-center space-y-6 p-6 bg-white shadow-md transition-all duration-100
+      className={`font-sans font-light text-[16px] relative flex flex-col items-center space-y-6 p-6 bg-white border-r border-[#D4D4D4] transition-all duration-100
       ${isExpanded ? "w-[274px] items-start" : "w-[90px] items-center"} min-h-screen bg-white`}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
@@ -77,7 +82,7 @@ const Navbar: React.FC = () => {
 
       {/* Logo */}
       <div className="flex items-center">
-        <img src="images/logo/logo.png" width={50} alt="logo" />
+        <img src="/images/logo/logo.png" width={50} alt="logo" className="" />
         {isExpanded && <h2 className="text-xl font-bold ml-2">OakAirline</h2>}
       </div>
 
@@ -96,7 +101,7 @@ const Navbar: React.FC = () => {
       <div className="mt-8 w-full">
         {isExpanded && <h3 className="text-[16px] font-semibold">Pages</h3>}
         <div className="space-y-4 mt-2">
-          <MenuItem icon={IoMdAirplane} label="Manage Flights" path="/manageflight" isExpanded={isExpanded} />
+          <MenuItem icon={IoMdAirplane} label="Manage Flights" path={["/manageflight", "/manageflight/flightoverview"]} isExpanded={isExpanded} />
           <MenuItem icon={BiSolidCoupon} label="Manage Booking" path="/managebooking" isExpanded={isExpanded} />
           <MenuItem icon={HiMiniUserGroup} label="User Management" path="/manageuser" isExpanded={isExpanded} />
         </div>
@@ -105,7 +110,7 @@ const Navbar: React.FC = () => {
       {/* Bottom Section */}
       <div className="absolute bottom-[30px] px-[25px] w-full">
         <div className="space-y-4">
-          <MenuItem icon={HiUserCircle} label="Admin1" path="" isExpanded={isExpanded} />
+          <MenuItem icon={HiUserCircle} label="Admin1" isExpanded={isExpanded} />
           <MenuItem icon={HiArrowRightOnRectangle} label="Logout" path="/login" customClick={handleLogout} isExpanded={isExpanded} />
         </div>
       </div>
