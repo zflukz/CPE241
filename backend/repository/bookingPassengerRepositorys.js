@@ -48,3 +48,6 @@ exports.update = async (id, { bookingID, passengerID, seatNumber }) => {
 exports.remove = async (id) => {
   await db.query('DELETE FROM BookingPassengers WHERE bookingPassengerID = ?', [id]);
 };
+
+
+//asdas
