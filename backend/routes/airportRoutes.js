@@ -3,6 +3,14 @@ const router = express.Router();
 const airportController = require('../controllers/airportController.js');
 
 router.get('/' , airportController.getAirports);
-//router.delete('/' , bookingController.deleteBooking);
+
+router.get('/all', airportController.getAll);
+router.get('/:id', airportController.getOne);
+router.post('/', airportController.create);
+router.put('/:id', airportController.update);
+router.delete('/:id', airportController.remove);
+
+
 
 module.exports = router;
+

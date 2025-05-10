@@ -27,3 +27,40 @@ exports.getDashboardStats = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+
+
+
+//---------------------------------Reported------------------------------------------------//
+
+exports.getFlightPerformance = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'startDate and endDate are required' });
+    }
+
+    const result = await service.flightPerformance(startDate, endDate);
+    res.json(result);
+  } catch (error) {
+    console.error('Error in controller:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+exports.getbookingReport = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const result = await service.bookingSummary(startDate, endDate);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+
+//---------------------------------Reported------------------------------------------------//

@@ -20,3 +20,15 @@ exports.getCancelStats = async () => {
     oneYear: { canceled: year.canceled, total: year.total, cancelRate: rate(year.canceled, year.total) }
   };
 };
+
+
+//---------------------------------Reported------------------------------------------------//
+exports.flightPerformance = async (startDate, endDate) => {
+  return await repo.getFlightRoutePerformance(startDate, endDate);
+};
+exports.bookingSummary = async (startDate, endDate) => {
+  return await repo.getFlightSummary(startDate, endDate);
+};
+
+
+//---------------------------------Reported------------------------------------------------//
