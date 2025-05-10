@@ -1,9 +1,9 @@
-const service = require('../services/bookingPassengerServices');
+const cityService = require('../services/cityServices');
 
 exports.getAll = async (req, res) => {
   try {
-    const items = await service.getAllBookingPassengers();
-    res.json(items);
+    const cities = await cityService.getAllCities();
+    res.json(cities);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -11,9 +11,9 @@ exports.getAll = async (req, res) => {
 
 exports.getOne = async (req, res) => {
   try {
-    const item = await service.getBookingPassengerById(req.params.id);
-    if (!item) return res.status(404).json({ message: 'Not found' });
-    res.json(item);
+    const city = await cityService.getCityById(req.params.id);
+    if (!city) return res.status(404).json({ message: 'Not found' });
+    res.json(city);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -21,7 +21,7 @@ exports.getOne = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    await service.createBookingPassenger(req.body);
+    await cityService.createCity(req.body);
     res.status(201).json({ message: 'Created' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -30,7 +30,7 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    await service.updateBookingPassenger(req.params.id, req.body);
+    await cityService.updateCity(req.params.id, req.body);
     res.json({ message: 'Updated' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -39,7 +39,7 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    await service.deleteBookingPassenger(req.params.id);
+    await cityService.deleteCity(req.params.id);
     res.json({ message: 'Deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });

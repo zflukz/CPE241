@@ -102,7 +102,7 @@ exports.customerProfile = async (bookingID) => {
     JOIN Passengers p ON bp.passengerID = p.passengerID
     JOIN Bookings b ON bp.bookingID = b.bookingID
     JOIN Flights f ON b.flightID = f.flightID
-    JOIN Airlines al ON f.airlineID = al.airlineID -- แก้ตรงนี้ถ้าคุณมีตาราง Airlines
+    JOIN Airlines al ON f.airlineID = al.airlineID 
     WHERE b.bookingID = ?
   `, [bookingID]);
 
@@ -169,6 +169,87 @@ exports.getFlightSummary = async (startDate, endDate) => {
   `, [startDate, endDate]);
   return rows;
 };
+
+
+//-----------------------------------------//
+exports.getCanceledTicketReport = async (startDate, endDate) => {
+  const [rows] = await db.query(`
+    SELECT 
+      b.bookingDate,
+      COUNT(t.ticketID) AS totalTickets,
+      SUM(f.price) AS totalPrice,
+      SUM(CASE WHEN t.ticketStatus = 'canceled' THEN 1 ELSE 0 END) AS cancelledTickets,
+      SUM(CASE WHEN t.ticketStatus = 'canceled' THEN f.price ELSE 0 END) AS cancelledPrice
+    FROM Tickets t
+    JOIN Bookings b ON b.bookingID = t.bookingID
+    JOIN Flights f ON f.flightID = t.flightID
+    JOIN Payments p ON p.bookingID = b.bookingID
+    WHERE b.bookingDate BETWEEN ? AND ?
+    GROUP BY b.bookingDate
+  `, [startDate, endDate]);
+
+
+  const totalCancelledTickets = rows.reduce((sum, row) => sum + Number(row.cancelledTickets), 0);
+  console.log(totalCancelledTickets)
+  const report = rows.map(row => {
+    const cancelRate = row.totalTickets > 0 
+      ? (row.cancelledTickets / row.totalTickets) * 100 
+      : 0;
+
+    const percentOfTotalCancellations = totalCancelledTickets > 0
+      ? (row.cancelledTickets / totalCancelledTickets) * 100
+      : 0;
+
+    return {
+      date: row.bookingDate,
+      totalTickets: row.totalTickets,
+      cancelledTickets: row.cancelledTickets,
+      cancelledPrice: row.cancelledPrice,
+      totalPrice: row.totalPrice,
+      cancelRate: cancelRate.toFixed(2) + '%',
+      percentOfTotalCancellations: percentOfTotalCancellations.toFixed(2) + '%'
+    };
+  });
+
+  return report;
+};
+
+//----------------------------------------//
+
+exports.getAirlineRevenueReport = async (startDate, endDate) => {
+  const [rows] = await db.query(`
+    SELECT 
+      a.airlineName AS airline,
+      COUNT(f.flightID) AS totalFlights,
+      SUM(f.price) AS revenue,
+      AVG(
+          (SELECT COUNT(*) 
+          FROM Tickets t2 
+          WHERE t2.flightID = f.flightID AND t2.ticketStatus = 'confirmed'
+          ) / (f.availableSeats * 100)
+      ) AS avgLoadFactor,
+      SUM(CASE WHEN t.ticketStatus = 'canceled' THEN 1 ELSE 0 END) / COUNT(t.ticketID) * 100 AS cancelRate
+    FROM Airlines a
+    JOIN Flights f ON a.airlineID = f.airlineID
+    JOIN Tickets t ON f.flightID = t.flightID
+    JOIN Bookings b ON b.bookingID = t.bookingID
+    WHERE b.bookingDate BETWEEN ? AND ?
+    GROUP BY a.airlineID
+
+  `, [startDate, endDate]);
+
+  return rows;
+};
+
+
+
+
+
+
+
+
+
+
 
 
 //---------------------------------Reported------------------------------------------------//
