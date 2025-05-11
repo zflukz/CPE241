@@ -3,7 +3,7 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 
 
-//หน้า dashboard ถ้าใส่ range ตรง flight routes กูรับข้อมูลมาคือถ้ากด range ให้ใส่ params ?range=week,month,year
+//หน้า dashboard 
 router.get('/dashboard', adminController.getDashboardStats);
 
 //Report

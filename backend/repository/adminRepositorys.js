@@ -76,7 +76,7 @@ exports.getTop3RoutesRevenue = async (interval) => {
       COUNT(t.ticketID) AS ticketsSold,
       f.price,
       SUM(f.price) AS revenuePerTicket, 
-      COUNT(t.ticketID) * f.price AS totalRevenue
+      COUNT(t.ticketID) * f.price AS totalRevenue 
     FROM Flights f
     JOIN Airports a1 ON f.source = a1.airportID
     JOIN Airports a2 ON f.destination = a2.airportID
