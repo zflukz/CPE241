@@ -5,7 +5,11 @@ exports.getTotalBooking = () => repo.countActiveBookings();
 exports.getTotalRevenueAllFlights = () => repo.sumRevenueAllFlights();
 exports.getRevenuePerFlight = () => repo.revenuePerFlight();
 exports.getTopFiveAirlines = () => repo.topFiveAirlines();
-exports.getTop3RoutesRevenue = () => repo.top3RoutesRevenue();
+
+
+exports.getTop3RoutesRevenue = async (range) => {
+  return await repo.getTop3RoutesRevenue(range);
+};
 
 exports.getCancelStats = async () => {
   const week = await repo.cancelStatsByInterval('1 WEEK');

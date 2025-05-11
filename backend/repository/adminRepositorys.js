@@ -64,7 +64,23 @@ exports.cancelStatsByInterval = async (interval) => {
   return { total, canceled };
 };
 
-exports.top3RoutesRevenue = async () => {
+exports.getTop3RoutesRevenue = async (range) => {
+  let dateInterval;
+
+  switch (range) {
+    case 'week':
+      dateInterval = 'INTERVAL 1 WEEK';
+      break;
+    case 'month':
+      dateInterval = 'INTERVAL 1 MONTH';
+      break;
+    case 'year':
+      dateInterval = 'INTERVAL 1 YEAR';
+      break;
+    default:
+      throw new Error('Invalid range. Use "week", "month", or "year".');
+  }
+
   const [rows] = await db.query(`
     SELECT 
       f.source,
@@ -76,13 +92,18 @@ exports.top3RoutesRevenue = async () => {
       COUNT(t.ticketID) * f.price AS totalRevenue
     FROM Flights f
     JOIN Tickets t ON f.flightID = t.flightID
-    WHERE t.ticketStatus = 'used'
+    JOIN Payments p ON t.bookingID = p.bookingID
+    WHERE 
+      t.ticketStatus = 'used'
+      AND p.paymentDate >= NOW() - ${dateInterval}
     GROUP BY f.source, f.destination, f.price
     ORDER BY totalRevenue DESC
     LIMIT 3
   `);
+
   return rows;
 };
+
 
 
 

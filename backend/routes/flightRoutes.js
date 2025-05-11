@@ -14,7 +14,7 @@ router.get('/overview/:flightID',flightController.flightInformationByID);
 
 module.exports = router;
 
-// hum bid
+
 
 
 //search source to destination with AirportID
@@ -117,4 +117,4 @@ module.exports = router;
 
 
 
-module.exports = router;
+

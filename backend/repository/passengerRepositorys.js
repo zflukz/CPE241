@@ -22,3 +22,43 @@ exports.createPassenger = async (passengerID, passenger) => {
     ]
   );
 };
+
+
+
+
+
+
+exports.getAllPassengers = async () => {
+  const [rows] = await db.execute('SELECT * FROM Passengers');
+  return rows;
+};
+
+exports.getPassengerById = async (id) => {
+  const [rows] = await db.execute('SELECT * FROM Passengers WHERE passengerID = ?', [id]);
+  return rows[0];
+};
+
+exports.updatePassenger = async (id, passenger) => {
+  const sql = `
+    UPDATE Passengers SET 
+    passengerFirstname = ?, passengerLastname = ?, sex = ?, birthDate = ?, 
+    nationality = ?, phoneNumber = ?, passportNumber = ?
+    WHERE passengerID = ?
+  `;
+  const [result] = await db.execute(sql, [
+    passenger.passengerFirstname,
+    passenger.passengerLastname,
+    passenger.sex,
+    passenger.birthDate,
+    passenger.nationality,
+    passenger.phoneNumber,
+    passenger.passportNumber,
+    id
+  ]);
+  return result;
+};
+
+exports.deletePassenger = async (id) => {
+  const [result] = await db.execute('DELETE FROM Passengers WHERE passengerID = ?', [id]);
+  return result;
+};
