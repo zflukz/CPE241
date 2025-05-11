@@ -64,38 +64,27 @@ exports.cancelStatsByInterval = async (interval) => {
   return { total, canceled };
 };
 
-exports.getTop3RoutesRevenue = async (range) => {
-  let dateInterval;
-
-  switch (range) {
-    case 'week':
-      dateInterval = 'INTERVAL 1 WEEK';
-      break;
-    case 'month':
-      dateInterval = 'INTERVAL 1 MONTH';
-      break;
-    case 'year':
-      dateInterval = 'INTERVAL 1 YEAR';
-      break;
-    default:
-      throw new Error('Invalid range. Use "week", "month", or "year".');
-  }
-
+exports.getTop3RoutesRevenue = async (interval) => {
+  
   const [rows] = await db.query(`
     SELECT 
       f.source,
       f.destination,
-      CONCAT(f.source, ' → ', f.destination) AS route,
+      a1.airportLabel AS sourceLabel,
+      a2.airportLabel AS destinationLabel,
+      CONCAT(a1.airportLabel, ' → ', a2.airportLabel) AS route,
       COUNT(t.ticketID) AS ticketsSold,
       f.price,
       SUM(f.price) AS revenuePerTicket, 
       COUNT(t.ticketID) * f.price AS totalRevenue
     FROM Flights f
+    JOIN Airports a1 ON f.source = a1.airportID
+    JOIN Airports a2 ON f.destination = a2.airportID
     JOIN Tickets t ON f.flightID = t.flightID
     JOIN Payments p ON t.bookingID = p.bookingID
     WHERE 
       t.ticketStatus = 'used'
-      AND p.paymentDate >= NOW() - ${dateInterval}
+      AND p.paymentDate >= (NOW() - INTERVAL ${interval})
     GROUP BY f.source, f.destination, f.price
     ORDER BY totalRevenue DESC
     LIMIT 3
@@ -103,6 +92,7 @@ exports.getTop3RoutesRevenue = async (range) => {
 
   return rows;
 };
+
 
 
 

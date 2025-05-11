@@ -7,7 +7,7 @@ router.post('/', paymentController.createPayment);
 
 
 //Routes รับ paymentID , newStatus
-router.put('/:id/pay', paymentController.payPayment); 
+router.put('/:id/pay', paymentController.updatePaymentStatus); 
 
 
 module.exports = router;

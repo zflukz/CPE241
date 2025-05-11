@@ -2,13 +2,6 @@ const service = require('../services/adminServices.js');
 
 exports.getDashboardStats = async (req, res) => {
   try {
-    const { range } = req.query;
-    if (!['week', 'month', 'year'].includes(range)) {
-      return res.status(400).json({ error: 'Invalid range. Use "week", "month", or "year".' });
-    }
-    
-    
-
     const [totalBooking, totalCancel, totalRevenue, cancelStats, topAirlines, topRoutes, revenuePerFlight] =
       await Promise.all([
         service.getTotalBooking(),
@@ -16,7 +9,7 @@ exports.getDashboardStats = async (req, res) => {
         service.getTotalRevenueAllFlights(),
         service.getCancelStats(),
         service.getTopFiveAirlines(),
-        service.getTop3RoutesRevenue(range),
+        service.getTop3RoutesRevenue(),
         service.getRevenuePerFlight()
       ]);
 

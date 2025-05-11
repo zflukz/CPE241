@@ -7,8 +7,16 @@ exports.getRevenuePerFlight = () => repo.revenuePerFlight();
 exports.getTopFiveAirlines = () => repo.topFiveAirlines();
 
 
-exports.getTop3RoutesRevenue = async (range) => {
-  return await repo.getTop3RoutesRevenue(range);
+exports.getTop3RoutesRevenue = async () => {
+  const week = await repo.getTop3RoutesRevenue('1 WEEK');
+  const month = await repo.getTop3RoutesRevenue('1 MONTH');
+  const year = await repo.getTop3RoutesRevenue('1 YEAR');
+
+  return {
+    week,
+    month,
+    year
+  };
 };
 
 exports.getCancelStats = async () => {
@@ -24,6 +32,7 @@ exports.getCancelStats = async () => {
     oneYear: { canceled: year.canceled, total: year.total, cancelRate: rate(year.canceled, year.total) }
   };
 };
+
 
 
 
