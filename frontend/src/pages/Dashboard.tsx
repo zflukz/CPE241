@@ -3,11 +3,81 @@ import React from "react";
 import Navbar from "../components/Navbar";
 import TopNavbar from "../components/TopNavBar";
 import FlightPath from "../components/Route";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, Label, } from "recharts";
 import { flightRouteRevenue, airlineRevenue } from "../data/mockDashboardData";
 import { FaArrowsRotate, FaArrowTrendDown, FaArrowTrendUp, FaPlane, FaDollarSign } from "react-icons/fa6";
+import { useEffect } from "react";
+import { useState } from "react";
+interface DataDashboard {
+  totalBooking: number;
+  totalCancel: number;
+  totalRevenue: string;
 
+  cancelStats: {
+    oneWeek: CancelStatsPeriod;
+    oneMonth: CancelStatsPeriod;
+    oneYear: CancelStatsPeriod;
+  };
+
+  topAirlines: TopAirline[];
+  topRoutes: TopRoute[];
+  revenuePerFlight: RevenueFlight[];
+}
+
+interface CancelStatsPeriod {
+  canceled: number;
+  total: number;
+  cancelRate: string; // e.g. "15.63%"
+}
+
+interface TopAirline {
+  airlineID: string;
+  airlineName: string;
+  totalRevenue: string;
+}
+
+interface TopRoute {
+  source: string;
+  destination: string;
+  route: string; // e.g. "A004 → A003"
+  ticketsSold: number;
+  price: string;
+  revenuePerTicket: string;
+  totalRevenue: string;
+}
+
+interface RevenueFlight {
+  flightID: string;
+  label: string;
+  ticketsSold: number;
+  price: string;
+  totalRevenue: string;
+}
 const Dashboard: React.FC = () => {
+  const [dashboardData, setDashboardData] = useState<DataDashboard | null>(null);
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28BD4'];
+  const [selectedPeriod, setSelectedPeriod] = useState<'oneWeek' | 'oneMonth' | 'oneYear'>('oneWeek');
+  const cancelData = dashboardData?.cancelStats[selectedPeriod];
+  const pieChartData = dashboardData?.topAirlines.map((airline, index) => ({
+  name: airline.airlineName,
+  value: parseFloat(airline.totalRevenue),
+  color: COLORS[index % COLORS.length] // use lowercase key like "color"
+}));
+useEffect(() => {
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/admins/dashboard");
+      if (!response.ok) throw new Error("Failed to fetch dashboard data");
+      const data: DataDashboard = await response.json();
+      setDashboardData(data);
+      console.log(data);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Unknown error");
+    }
+  };
+
+  fetchDashboardData();
+}, []);
     return (
         <div className="flex">
             <Navbar />
@@ -19,22 +89,23 @@ const Dashboard: React.FC = () => {
 
                 {/* Top Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 px-8">
-                    {[
+                    {
+                    [
                         {
                             label: "Total Cancel",
-                            value: "200",
+                            value: dashboardData?.totalCancel,
                             badge: "+12.05%",
                             icon: <FaArrowsRotate className="text-lg text-[#C84B2F]" />,
                         },
                         {
                             label: "Total Booking",
-                            value: "2.2K",
+                            value: dashboardData?.totalBooking,
                             badge: "-12.05%",
                             icon: <FaPlane className="text-lg text-[#C84B2F]" />,
                         },
                         {
                             label: "Total Revenue",
-                            value: "422.2K THB",
+                            value: dashboardData?.totalRevenue,
                             badge: "+12.05%",
                             icon: <FaDollarSign className="text-lg text-[#C84B2F]" />,
                         },
@@ -42,9 +113,9 @@ const Dashboard: React.FC = () => {
                             label: "Popular Routes",
                             value: (
                               <div className="flex items-center justify-center gap-2">
-                                <span className="font-bold">BKK</span>
+                                <span className="font-bold">{dashboardData?.topRoutes[0].source}</span>
                                 <FlightPath />
-                                <span className="font-bold">SIN</span>
+                                <span className="font-bold">{dashboardData?.topRoutes[0].destination}</span>
                               </div>
                             ),
                             badge: "+12.05%",
@@ -154,7 +225,7 @@ const Dashboard: React.FC = () => {
                             <ResponsiveContainer width={300} height={300}>
                                 <PieChart>
                                     <Pie
-                                        data={airlineRevenue}
+                                        data={pieChartData}
                                         dataKey="value"
                                         nameKey="name"
                                         cx="50%"
@@ -167,9 +238,9 @@ const Dashboard: React.FC = () => {
                                             `${(percent * 100).toFixed(0)}%`
                                         }
                                     >
-                                        {airlineRevenue.map((entry, index) => (
+                                        {pieChartData?.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
+                                            ))}
                                     </Pie>
                                 </PieChart>
                             </ResponsiveContainer>
@@ -177,7 +248,7 @@ const Dashboard: React.FC = () => {
 
                         {/* Revenue Breakdown */}
                         <div className="mt-6 w-full flex flex-col items-between space-y-2">
-                            {airlineRevenue.map((airline, index) => (
+                            {pieChartData?.map((airline, index) => (
                                 <div key={index} className="flex items-center text-sm text-gray-700">
                                     <span
                                         className="inline-block w-3 h-3 rounded-full mr-2"
@@ -195,13 +266,20 @@ const Dashboard: React.FC = () => {
                     <div className="bg-white rounded-xl shadow-md p-6 mr-[200px] ml-[-130px] mb-[300px]">
                         <h2 className="font-bold text-black mb-4 text-center">Cancellations Overview</h2>
                         <div className="flex space-x-2 mb-8 justify-center">
-                            {["1 Week", "1 Month", "1 Year"].map((label) => (
-                                <button
-                                    key={label}
-                                    className="px-3 py-1 border rounded-full bg-black text-white hover:opacity-90 text-sm"
-                                >
-                                    {label}
-                                </button>
+                                                        {[
+                            { label: "1 Week", key: "oneWeek" },
+                            { label: "1 Month", key: "oneMonth" },
+                            { label: "1 Year", key: "oneYear" },
+                            ].map(({ label, key }) => (
+                            <button
+                                key={label}
+                                onClick={() => setSelectedPeriod(key as 'oneWeek' | 'oneMonth' | 'oneYear')}
+                                className={`px-3 py-1 border rounded-full text-sm ${
+                                selectedPeriod === key ? 'bg-black text-white' : 'bg-gray-200 text-black'
+                                }`}
+                            >
+                                {label}
+                            </button>
                             ))}
                         </div>
 
@@ -211,7 +289,7 @@ const Dashboard: React.FC = () => {
                                 <FaArrowsRotate className="text-lg text-[#C84B2F]" /> Total Canceled Tickets
                                     <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs flex items-center">+12.05% <FaArrowTrendUp className="text-xs ml-1" /></span>
                                 </span>
-                                <span className="text-lg font-bold">120</span>
+                                <span className="text-lg font-bold">{cancelData?.canceled ?? '-'}</span>
                             </div>
 
                             <div className="flex justify-between items-center">
@@ -219,7 +297,7 @@ const Dashboard: React.FC = () => {
                                 <FaArrowsRotate className="text-lg text-[#C84B2F]" /> Cancellation Rate
                                     <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs flex items-center">+12.05% <FaArrowTrendUp className="text-xs ml-1" /></span>
                                 </span>
-                                <span className="text-lg font-bold">5.2%</span>
+                                <span className="text-lg font-bold">{cancelData?.cancelRate ?? '-'}</span>
                             </div>
                         </div>
                     </div>

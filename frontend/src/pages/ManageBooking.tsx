@@ -11,37 +11,93 @@ import { HiBarsArrowDown } from "react-icons/hi2";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import TopNavbar from '../components/TopNavBar';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 interface Booking {
-  flightNo: string;
+  flightID: string;
   bookingID: string;
   numberofpassenger: string;
-  date: string;
-  username: string;
-  status: 'Confirmed' | 'Pending' | 'Canceled';
+  bookingDate: string;
+  userID: string;
+  bookingStatus: 'confirmed' | 'pending' | 'canceled';
 }
 
 const initialBookings: Booking[] = [
-  { flightNo: 'TG102', bookingID: 'B001', numberofpassenger: '2', username: 'user001', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B002', numberofpassenger: '3', username: 'user002', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B003', numberofpassenger: '2', username: 'user003', date: '9 Mar 2025', status: 'Pending' },
-  { flightNo: 'TG102', bookingID: 'B004', numberofpassenger: '4', username: 'user004', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B005', numberofpassenger: '1', username: 'user005', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B006', numberofpassenger: '1', username: 'user006', date: '9 Mar 2025', status: 'Canceled' },
-  { flightNo: 'TG102', bookingID: 'B007', numberofpassenger: '3', username: 'user007', date: '9 Mar 2025', status: 'Confirmed' },
+  { flightID: 'TG102', bookingID: 'B001', numberofpassenger: '2', userID: 'user001', bookingDate: '9 Mar 2025', bookingStatus: 'confirmed' },
+  { flightID: 'TG102', bookingID: 'B002', numberofpassenger: '3', userID: 'user002', bookingDate: '9 Mar 2025', bookingStatus: 'confirmed' },
+  { flightID: 'TG102', bookingID: 'B003', numberofpassenger: '2', userID: 'user003', bookingDate: '9 Mar 2025', bookingStatus: 'pending' },
+  { flightID: 'TG102', bookingID: 'B004', numberofpassenger: '4', userID: 'user004', bookingDate: '9 Mar 2025', bookingStatus: 'confirmed' },
+  { flightID: 'TG102', bookingID: 'B005', numberofpassenger: '1', userID: 'user005', bookingDate: '9 Mar 2025', bookingStatus: 'confirmed' },
+  { flightID: 'TG102', bookingID: 'B006', numberofpassenger: '1', userID: 'user006', bookingDate: '9 Mar 2025', bookingStatus: 'canceled' },
+  { flightID: 'TG102', bookingID: 'B007', numberofpassenger: '3', userID: 'user007', bookingDate: '9 Mar 2025', bookingStatus: 'confirmed' },
 ];
 
 const ManageBookings = () => {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const totalPages = Math.ceil(bookings.length / rowsPerPage);
+
+  const paginatedBookings = bookings.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+   useEffect(() => {
+  const fetchAirports = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/bookings/");
+      if (!response.ok) throw new Error("Failed to fetch airports");
+      const data: Booking[] = await response.json();
+
+      const user = data.map((item: Booking): Booking => {
+        const date = new Date(item.bookingDate);
+        const day = date.getDate();
+        const month = date.toLocaleString('en-US', { month: 'long' }); // "June"
+        const year = date.getFullYear();
+        const formattedDate = `${day}-${month}-${year}`;
+
+        return {
+          flightID: item.flightID,
+          bookingID: item.bookingID,
+          bookingDate: formattedDate,  // ✅ formatted string here
+          userID: item.userID,
+          bookingStatus: item.bookingStatus,
+          numberofpassenger: '1',
+        };
+      });
+
+      console.log(user);
+      setBookings(user);
+
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Unknown error");
+    }
+  };
+
+  fetchAirports();
+}, []);
   const handleDelete = (bookingID: string) => {
     setBookings((prev) => prev.filter((booking) => booking.bookingID !== bookingID));
+  };
+
+  const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRowsPerPage(parseInt(e.target.value));
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
   return (
     <div className="flex min-h-screen font-sans">
       <Navbar />
-      <div className='flex-1 flex flex-col'>
+      <div className="flex-1 flex flex-col">
         <TopNavbar />
         <div className="flex-1 p-8 bg-[#FAF9F8] min-h-screen overflow-auto">
           <div className="flex items-center justify-between mt-8 mb-8">
@@ -57,7 +113,7 @@ const ManageBookings = () => {
                 <HiMiniMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#C84B2F]" />
               </div>
 
-              <Button variant="outline" className='flex items-center gap-2 bg-[#FFFFFF] hover:bg-[#F7F7F7] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C84B2F]'>
+              <Button variant="outline" className="flex items-center gap-2 bg-[#FFFFFF] hover:bg-[#F7F7F7] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C84B2F]">
                 <HiBarsArrowDown size={20} /> Filter
               </Button>
 
@@ -85,35 +141,34 @@ const ManageBookings = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {bookings.map((booking, index) => (
+                {paginatedBookings.map((booking, index) => (
                   <TableRow key={index}>
-                    <TableCell className="text-center">{booking.date}</TableCell>
-                    <TableCell className="text-center">{booking.flightNo}</TableCell>
+                    <TableCell className="text-center">{booking.bookingDate}</TableCell>
+                    <TableCell className="text-center">{booking.flightID}</TableCell>
                     <TableCell className="text-center">{booking.bookingID}</TableCell>
-                    <TableCell className="text-center">{booking.username || '-'}</TableCell>
+                    <TableCell className="text-center">{booking.userID}</TableCell>
                     <TableCell className="text-center">{booking.numberofpassenger}</TableCell>
                     <TableCell className="text-center">
                       <Badge variant={
-                        booking.status === 'Confirmed' ? 'success' :
-                        booking.status === 'Pending' ? 'warning' :
-                        'destructive'
+                        booking.bookingStatus === 'confirmed' ? 'success' :
+                        booking.bookingStatus === 'pending' ? 'warning' : 'destructive'
                       }>
-                        {booking.status === 'Confirmed' && <AiOutlineCheck className="mr-2 text-green-500" />}
-                        {booking.status === 'Pending' && <AiOutlineClockCircle className="mr-2 text-yellow-500" />}
-                        {booking.status === 'Canceled' && <AiOutlineCloseCircle className="mr-2 text-red-500" />}
-                        {booking.status}
+                        {booking.bookingStatus === 'confirmed' && <AiOutlineCheck className="mr-2 text-green-500" />}
+                        {booking.bookingStatus === 'pending' && <AiOutlineClockCircle className="mr-2 text-yellow-500" />}
+                        {booking.bookingStatus === 'canceled' && <AiOutlineCloseCircle className="mr-2 text-red-500" />}
+                        {booking.bookingStatus}
                       </Badge>
                     </TableCell>
                     <TableCell className="flex gap-2 justify-center">
                       <Link to="/managebooking/bookingoverview">
-                        <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'><FiEye size={18} /></Button>
+                        <Button size="sm" variant="ghost" className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"><FiEye size={18} /></Button>
                       </Link>
-                      <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'><FiEdit2 size={18} /></Button>
+                      <Button size="sm" variant="ghost" className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"><FiEdit2 size={18} /></Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'
-                        onClick={() => handleDelete(booking.bookingID)} // Add the delete functionality here
+                        className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"
+                        onClick={() => handleDelete(booking.bookingID)}
                       >
                         <FiTrash2 size={18} />
                       </Button>
@@ -124,15 +179,36 @@ const ManageBookings = () => {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between mt-6">
-            <div className="text-sm text-gray-600">Rows per page: 3</div>
+          <div className="flex items-center justify-between mt-6 flex-wrap gap-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>Rows per page:</span>
+              <select
+                className="border rounded-md px-2 py-1"
+                value={rowsPerPage}
+                onChange={handleRowsPerPageChange}
+              >
+                {[3, 5, 7, 10].map(count => (
+                  <option key={count} value={count}>{count}</option>
+                ))}
+              </select>
+            </div>
+
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious />
+                  <PaginationPrevious
+                    onClick={handlePreviousPage}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+                <PaginationItem className="text-sm px-4 flex items-center">
+                  Page {currentPage} of {totalPages}
                 </PaginationItem>
                 <PaginationItem>
-                  <PaginationNext />
+                  <PaginationNext
+                    onClick={handleNextPage}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>

@@ -78,7 +78,7 @@ const Loading = () => {
         phoneNumber: p.phonenumber
       }))
     };
-
+    console.log(transformedBookingData);
     setBookingData(transformedBookingData);
   }, [location.state]);// Trigger effect when location state changes
   // Post the booking data after it's available

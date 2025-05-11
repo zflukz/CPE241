@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const db = require('./config/db.js');
-
+const cors = require('cors');
 const app = express();
 app.use(express.json());
 
@@ -11,7 +11,9 @@ app.use((req, res, next) => {
   req.db = db;
   next();
 });
-
+app.use(cors({
+  origin: 'http://localhost:3000',
+}));
 const routeMap = {
   userRoutes: '/api/users',
   flightRoutes: '/api/flights',

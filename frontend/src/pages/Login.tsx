@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-
+import { useUser } from "../context/Usercontext";
 const Login: React.FC = () => {
+  const { setUser } = useUser();
     const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,7 +12,7 @@ const Login: React.FC = () => {
     console.log('Login form submitted:', { email, password, rememberMe });
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/login', {
+      const response = await fetch('http://localhost:8000/api/users/login', {
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json',
@@ -27,7 +28,16 @@ const Login: React.FC = () => {
       
       const data = await response.json();
       console.log('Login successful:', data);
-      navigate('/content');
+      setUser({
+                id: data.userID,
+                name: data.username,
+                email: data.email,
+                role: data.role
+              });
+      if(data.role == "admin")
+        navigate('/dashboard');
+      else
+        navigate('/Home');
     }
     // Add your login logic here (e.g., API call)
     catch (error) {

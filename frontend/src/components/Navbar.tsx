@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoMdAirplane } from "react-icons/io";
 import { BiSolidCoupon, BiSolidReport } from "react-icons/bi";
 import { HiMiniUserGroup, HiUserCircle, HiArrowRightOnRectangle } from "react-icons/hi2";
 import { AiFillPieChart } from "react-icons/ai";
-
+import { useUser } from "../context/Usercontext";
 interface MenuItemProps {
   icon: React.ElementType;
   label: string;
@@ -16,7 +16,7 @@ interface MenuItemProps {
 const MenuItem: React.FC<MenuItemProps> = ({ icon: Icon, label, path, customClick, isExpanded }) => {
   const location = useLocation();
   const navigate = useNavigate();
-
+   
   // Handle the case where path is not provided
   const isActive = (paths: string | string[] | undefined) => {
     if (!paths) return false; // If no path is provided, it's not active
@@ -60,11 +60,21 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon: Icon, label, path, customClic
 const Navbar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
-
+  const { user } = useUser();
+    useEffect(() => {
+    // Check if user is null and redirect to login
+    if (user === null) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
+  if (user === null) {
+    // Optionally show a loading spinner or fallback UI
+    return <div>Loading...</div>;
+  }
 
   return (
     <div
@@ -84,6 +94,7 @@ const Navbar: React.FC = () => {
       <div className="flex items-center">
         <img src="/images/logo/logo.png" width={50} alt="logo" className="" />
         {isExpanded && <h2 className="text-xl font-bold ml-2">OakAirline</h2>}
+        
       </div>
 
       {/* Dashboards */}
@@ -110,7 +121,7 @@ const Navbar: React.FC = () => {
       {/* Bottom Section */}
       <div className="absolute bottom-[30px] px-[25px] w-full">
         <div className="space-y-4">
-          <MenuItem icon={HiUserCircle} label="Admin1" isExpanded={isExpanded} />
+          <MenuItem icon={HiUserCircle} label={user.name} isExpanded={isExpanded} />
           <MenuItem icon={HiArrowRightOnRectangle} label="Logout" path="/login" customClick={handleLogout} isExpanded={isExpanded} />
         </div>
       </div>

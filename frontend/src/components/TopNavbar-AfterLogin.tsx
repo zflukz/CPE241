@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { useUser } from "../context/Usercontext";
 interface TopLoginAfterNavbarProps {
   className?: string; // Add className prop to interface
 }
 
 const TopLoginAfterNavbar: React.FC<TopLoginAfterNavbarProps> = ({ className }) => {
   const navigate = useNavigate();
-
+  const { user } = useUser();
+  if (!user) return <p>Not logged in</p>;
   return (
     <div className={`bg-white shadow px-[80px] p-4 flex items-center justify-between ${className}`}>
       <img 
@@ -23,7 +24,7 @@ const TopLoginAfterNavbar: React.FC<TopLoginAfterNavbarProps> = ({ className }) 
           <img src="/images/logo/logo.png" alt="user profile" className="h-[18px] w-[18px]" />
         </div>
 
-        <button className="mt-0 ml-[15px] font-bold text-[#C84B2F]">SaMuii</button>
+        <button className="mt-0 ml-[15px] font-bold text-[#C84B2F]">{user.name}</button>
       </div>
     </div>
   );

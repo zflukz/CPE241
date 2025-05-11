@@ -3,15 +3,13 @@ import { Button } from '../components/Button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../components/Table';
 import { Badge } from '../components/Badge';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '../components/Pagination';
-import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import Navbar from '../components/Navbar';
-import { HiPlusCircle } from "react-icons/hi";
 import { HiBarsArrowDown } from "react-icons/hi2";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import TopNavbar from '../components/TopNavBar';
-import { Link } from 'react-router-dom';
 import EditUser from '../components/EditUser';
-
+import { useEffect } from 'react';
 interface User {
   userID: string;
   username: string;
@@ -28,11 +26,47 @@ const ManageUsers = () => {
     { userID: 'U005', username: 'user005', email: 'yourname@gmail.com', role: 'person' },
     { userID: 'U006', username: 'user006', email: 'yourname@gmail.com', role: 'admin' },
     { userID: 'U007', username: 'user007', email: 'yourname@gmail.com', role: 'person' },
+    { userID: 'U008', username: 'user008', email: 'yourname@gmail.com', role: 'person' },
+    { userID: 'U009', username: 'user009', email: 'yourname@gmail.com', role: 'person' },
+    { userID: 'U010', username: 'user010', email: 'yourname@gmail.com', role: 'person' },
+    { userID: 'U011', username: 'user011', email: 'yourname@gmail.com', role: 'admin' },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(7);
+  const totalPages = Math.ceil(users.length / rowsPerPage);
+
+  const paginatedUsers = users.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+   useEffect(() => {
+      const fetchAirports = async () => {
+        try {
+          const response = await fetch("http://localhost:8000/api/users/users");
+          if (!response.ok) throw new Error("Failed to fetch airports");
+          const data: User[] = await response.json();
+          const user = data.map((item: User): User => ({
+            userID: item.userID,
+            username: item.username,
+            email :item.email,
+            role : item.role
+          }));
+          // console.log("AirportOption",airportOptions);
+          setUsers(user);
+          // console.log(airports);
+          
+        } catch (err) {
+          alert(err instanceof Error ? err.message : "Unknown error");
+        } 
+      };
+      fetchAirports();
+      // console.log("Airport",airports);
+    }, []);
   const handleEditClick = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
@@ -54,6 +88,19 @@ const ManageUsers = () => {
   const handleDeleteUser = (userID: string) => {
     const updatedUsers = users.filter(user => user.userID !== userID);
     setUsers(updatedUsers);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRowsPerPage(parseInt(e.target.value));
+    setCurrentPage(1); // Reset to first page
   };
 
   return (
@@ -91,7 +138,7 @@ const ManageUsers = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user, index) => (
+                {paginatedUsers.map((user, index) => (
                   <TableRow key={index}>
                     <TableCell className="text-center">{user.userID}</TableCell>
                     <TableCell className="text-center">{user.username}</TableCell>
@@ -125,15 +172,36 @@ const ManageUsers = () => {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between mt-6">
-            <div className="text-sm text-gray-600">Rows per page: 7</div>
+          <div className="flex items-center justify-between mt-6 flex-wrap gap-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>Rows per page:</span>
+              <select
+                className="border rounded-md px-2 py-1"
+                value={rowsPerPage}
+                onChange={handleRowsPerPageChange}
+              >
+                {[5, 7, 10, 15].map((count) => (
+                  <option key={count} value={count}>{count}</option>
+                ))}
+              </select>
+            </div>
+
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious />
+                  <PaginationPrevious
+                    onClick={handlePreviousPage}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+                <PaginationItem className="text-sm px-4 flex items-center">
+                  Page {currentPage} of {totalPages}
                 </PaginationItem>
                 <PaginationItem>
-                  <PaginationNext />
+                  <PaginationNext
+                    onClick={handleNextPage}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
@@ -141,7 +209,6 @@ const ManageUsers = () => {
         </div>
       </div>
 
-      {/* Popup Modal */}
       {isModalOpen && selectedUser && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-8">
           <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg sm:max-w-xl relative">

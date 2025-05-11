@@ -19,7 +19,9 @@ import SearchFlight from "./pages/SearchFlight";
 import BookingOverview from "./pages/BookingOverview";
 import EditPassenger from "./components/EditPassenger";
 import FlightOverview from "./pages/FlightOverview";
-
+import Dashboard from "./pages/Dashboard"; // ✅ Add this line
+import Reports from "./pages/Reports"; // ✅ Add this import
+import { UserProvider } from "./context/Usercontext";
 interface Passenger {
   id : string;
   fullName: string;
@@ -31,8 +33,6 @@ interface Passenger {
   seatClass: 'First Class'| 'Business Class' |  'Premium Economy' | 'Economy Class';
   baggageWeight: number;
 }
-import Dashboard from "./pages/Dashboard"; // ✅ Add this line
-import Reports from "./pages/Reports"; // ✅ Add this import
 
 const App: React.FC = () => {
   const [passenger, setPassenger] = useState<Passenger>({
@@ -57,6 +57,7 @@ const App: React.FC = () => {
   };
 
   return (
+    <UserProvider>
     <Router>
       <Routes>
         <Route path="/booking" element={<ReservationPage />} />
@@ -92,6 +93,7 @@ const App: React.FC = () => {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
+    </UserProvider>
   );
 };
 

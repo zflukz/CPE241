@@ -4,6 +4,7 @@ import TopNavbar from '../components/TopNavbar-AfterLogin';
 import { FaRegCalendarAlt } from 'react-icons/fa';
 import { useNavigate,useLocation } from "react-router-dom";
 import {Flight} from './FlightType';
+import { useUser } from '../context/Usercontext';
 type ReservationProps = {
   passengerCount?: number; // optional
   flightClass?: string;    // optional
@@ -52,10 +53,10 @@ export default function ReservationPage({
     updatedPassengers[index][field] = value;
     setPassengers(updatedPassengers);
   };
-
+  const user = useUser();
   const handleClick = () => {
     const bookingData = {
-      userID: 'U001',
+      userID: user.user?.id,
       flightID: state.booked[0].flightID,
       bookingDate: new Date().toISOString()
       .replace('T', ' ')
