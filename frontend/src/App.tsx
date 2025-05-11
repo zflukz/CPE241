@@ -31,6 +31,8 @@ interface Passenger {
   seatClass: 'First Class'| 'Business Class' |  'Premium Economy' | 'Economy Class';
   baggageWeight: number;
 }
+import Dashboard from "./pages/Dashboard"; // ✅ Add this line
+import Reports from "./pages/Reports"; // ✅ Add this import
 
 const App: React.FC = () => {
   const [passenger, setPassenger] = useState<Passenger>({
@@ -85,6 +87,8 @@ const App: React.FC = () => {
         />
         <Route path="/manageflight/flightoverview" element={<FlightOverview />} />
         <Route path="/managebooking/bookingoverview" element={<BookingOverview />} />
+        <Route path="/dashboard" element={<Dashboard />} /> {/* ✅ Register route */}
+        <Route path="/reports" element={<Reports />} /> {/* ✅ Add this line */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
