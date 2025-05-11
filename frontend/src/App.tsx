@@ -1,6 +1,7 @@
 // src/App.tsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 import Login from "./pages/Login";
 import ContentPage from "./pages/ContentPage";
 import BookingHistory from "./pages/BookingHistory";
@@ -20,6 +21,7 @@ import EditPassenger from "./components/EditPassenger";
 import FlightOverview from "./pages/FlightOverview";
 
 interface Passenger {
+  id : string;
   fullName: string;
   gender: 'Male' | 'Female';
   dob: string; // Add date of birth
@@ -32,6 +34,7 @@ interface Passenger {
 
 const App: React.FC = () => {
   const [passenger, setPassenger] = useState<Passenger>({
+    id:'P001',
     fullName: "John Doe",
     gender: "Male",
     dob: "1990-01-01",

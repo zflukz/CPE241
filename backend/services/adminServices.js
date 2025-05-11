@@ -21,6 +21,10 @@ exports.getCancelStats = async () => {
   };
 };
 
+
+
+
+
 exports.getCustomerProfile = async (bookingID) => {
   if (!bookingID) {
     throw new Error('Booking ID is required.');
@@ -28,3 +32,67 @@ exports.getCustomerProfile = async (bookingID) => {
 
   return await repo.customerProfile(bookingID);
 };
+
+//---------------------------------☻Reported------------------------------------------------//
+exports.flightPerformance = async (startDate, endDate) => {
+  return await repo.getFlightRoutePerformance(startDate, endDate);
+};
+exports.bookingSummary = async (startDate, endDate) => {
+  return await repo.getFlightSummary(startDate, endDate);
+};
+//-------------------------------------------------------------------------//
+exports.getCanceledTicketReport = async (startDate, endDate) => {
+  return await repo.getCanceledTicketReport(startDate, endDate);
+};
+exports.getAirlineRevenueReport = async (startDate, endDate) => {
+  const rows = await repo.getAirlineRevenueReport(startDate, endDate);
+
+  const totalFlights = rows.reduce((sum, row) => sum + Number(row.totalFlights), 0);
+  const totalRevenue = rows.reduce((sum, row) => sum + Number(row.revenue), 0);
+  const finalData = rows.map(row => {
+    const marketShare = totalFlights > 0
+      ? (row.totalFlights / totalFlights) * 100
+      : 0;
+
+    return {
+      ...row,
+      revenue: Number(row.revenue),
+      marketShare: marketShare.toFixed(2),
+      cancelRate: Number(row.cancelRate).toFixed(2),
+      avgLoadFactor: Number(row.avgLoadFactor).toFixed(2)
+    };
+  });
+
+  const mostRevenue = finalData.reduce((max, row) => row.revenue > max.revenue ? row : max, finalData[0]);
+  const mostMarketShare = finalData.reduce((max, row) => row.marketShare > max.marketShare ? row : max, finalData[0]);
+  const leastCancelRate = finalData.reduce((min, row) => row.cancelRate < min.cancelRate ? row : min, finalData[0]);
+  const mostAvgLoad = finalData.reduce((max, row) => row.avgLoadFactor > max.avgLoadFactor ? row : max, finalData[0]);
+
+  return {
+    report: finalData,
+    summary: {
+      mostRevenue: {
+        airline: mostRevenue.airline,
+        value: mostRevenue.revenue
+      },
+      mostMarketShare: {
+        airline: mostMarketShare.airline,
+        value: mostMarketShare.marketShare + '%'
+      },
+      leastCancelRate: {
+        airline: leastCancelRate.airline,
+        value: leastCancelRate.cancelRate + '%'
+      },
+      mostAvgLoad: {
+        airline: mostAvgLoad.airline,
+        value: mostAvgLoad.avgLoadFactor + '%'
+      }
+    }
+  };
+};
+
+//------------------------------------------//
+
+
+
+//---------------------------------Reported------------------------------------------------//

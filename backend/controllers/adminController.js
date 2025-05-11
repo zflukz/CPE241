@@ -46,3 +46,72 @@ exports.getCustomerProfile = async (req, res) => {
     });
   }
 };
+
+
+
+//---------------------------------Reported------------------------------------------------//
+
+exports.getFlightPerformance = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'startDate and endDate are required' });
+    }
+
+    const result = await service.flightPerformance(startDate, endDate);
+    res.json(result);
+  } catch (error) {
+    console.error('Error in controller:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+exports.getbookingReport = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const result = await service.bookingSummary(startDate, endDate);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+
+//-*----------------------------------------------------/
+exports.getCanceledTicketReport = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'startDate and endDate are required' });
+    }
+
+    const result = await service.getCanceledTicketReport(startDate, endDate);
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+//-*----------------------------------------------------//
+
+
+exports.getAirlineRevenueReport = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'startDate and endDate are required.' });
+    }
+
+    const result = await service.getAirlineRevenueReport(startDate, endDate);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('Error getting airline revenue report:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+//---------------------------------Reported------------------------------------------------//
