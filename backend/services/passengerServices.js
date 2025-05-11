@@ -6,3 +6,21 @@ exports.createPassenger = async (passenger) => {
   await passengerRepo.createPassenger(newID, passenger);
   return newID;
 };
+
+
+
+exports.getAllPassengers = () => {
+  return passengerRepo.getAllPassengers();
+};
+
+exports.getPassengerById = (id) => {
+  return passengerRepo.getPassengerById(id);
+};
+
+exports.updatePassenger = (id, data) => {
+  return passengerRepo.updatePassenger(id, data);
+};
+
+exports.deletePassenger = (id) => {
+  return passengerRepo.deletePassenger(id);
+};

@@ -1,4 +1,4 @@
-const passengerModel = require('../repository/passengerRepositorys.js');
+const passengerService = require('../repository/passengerRepositorys.js');
 
 
 
@@ -79,3 +79,42 @@ exports.createPassenger = async (req, res) => {
 
 
 
+
+exports.getAllPassengers = async (req, res) => {
+  try {
+    const passengers = await passengerService.getAllPassengers();
+    res.json(passengers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getPassengerById = async (req, res) => {
+  try {
+    const passenger = await passengerService.getPassengerById(req.params.id);
+    if (!passenger) {
+      return res.status(404).json({ message: 'Passenger not found' });
+    }
+    res.json(passenger);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updatePassenger = async (req, res) => {
+  try {
+    const result = await passengerService.updatePassenger(req.params.id, req.body);
+    res.json({ message: 'Passenger updated', result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deletePassenger = async (req, res) => {
+  try {
+    await passengerService.deletePassenger(req.params.id);
+    res.json({ message: 'Passenger deleted' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
