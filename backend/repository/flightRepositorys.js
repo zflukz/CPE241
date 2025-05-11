@@ -21,7 +21,18 @@ exports.createFlight = async (flightData) => {
 };
 
 exports.getFlights = async () => {
-  const [rows] = await db.execute(`SELECT * FROM Flights`);
+  const [rows] = await db.execute(`
+    SELECT f.flightID,
+    al.airlineName,
+    f.departTime,
+    f.arrivalTime,
+    f.flightStatus,
+    a1.code AS sourceCode,
+    a2.code AS destinationCode
+    FROM Flights f
+    JOIN Airports a1 ON f.source = a1.airportID
+    JOIN Airports a2 ON f.destination = a2.airportID
+    JOIN Airlines al ON f.airlineID = al.airlineID`);
   return rows;
 };
 
@@ -29,7 +40,7 @@ exports.searchFlightsByRoute = async (source, destination, departDate) => {
   const [rows] = await db.execute(
     `SELECT * FROM Flights 
      WHERE source = ? AND destination = ? AND DATE(departTime) = ?`,
-    [source, destination, departDate]
+    [source, destination, departDate] 
   );
   return rows;
 };
