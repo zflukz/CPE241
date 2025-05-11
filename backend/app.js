@@ -2,15 +2,20 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const db = require('./config/db.js');
+const cors = require('cors')
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:3000/',
+}));
 
 // ทำให้ req.db ใช้งานได้ในทุก route
 app.use((req, res, next) => {
   req.db = db;
   next();
 });
+
 
 const routeMap = {
   userRoutes: '/api/users',
@@ -44,7 +49,7 @@ fs.readdirSync(routesPath).forEach((file) => {
 });
 
 
-require('./cron/paymentCron.js');
+//require('./cron/paymentCron.js');
 
 
 const PORT = 8000;

@@ -10,9 +10,4 @@ exports.createPayment = async (bookingID, amount, paymentMethod) => {
 };
 
 
-exports.markExpiredPendingPayments = async () => {
-  const expiredPayments = await paymentRepo.getPendingPaymentsOlderThan(30);
-  for (const payment of expiredPayments) {
-    await paymentRepo.updatePaymentStatus(payment.id, 'failed');
-  }
-};
+exports.updatePaymentStatus = (id, newStatus) => paymentRepo.updatePaymentStatus(id,newStatus);
