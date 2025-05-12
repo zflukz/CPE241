@@ -64,34 +64,64 @@ exports.cancelStatsByInterval = async (interval) => {
   return { total, canceled };
 };
 
-exports.getTop3RoutesRevenue = async (interval) => {
-  
+exports.getTop3RoutesRevenue = async () => {
   const [rows] = await db.query(`
+    WITH TopRoutes AS (
+      SELECT 
+        f.source,
+        f.destination,
+        a1.airportLabel AS sourceLabel,
+        a2.airportLabel AS destinationLabel,
+        CONCAT(a1.airportLabel, ' → ', a2.airportLabel) AS route,
+        SUM(p.amount) AS totalRevenue
+      FROM Flights f
+      JOIN Airports a1 ON f.source = a1.airportID
+      JOIN Airports a2 ON f.destination = a2.airportID
+      JOIN Tickets t ON f.flightID = t.flightID
+      JOIN Bookings b ON t.bookingID = b.bookingID
+      JOIN Payments p ON b.bookingID = p.bookingID
+      WHERE 
+        t.ticketStatus = 'used'
+        AND p.paymentStatus = 'paid'
+        AND YEAR(p.paymentDate) = YEAR(CURDATE())
+      GROUP BY f.source, f.destination
+      ORDER BY totalRevenue DESC
+      LIMIT 3
+    )
+
     SELECT 
-      f.source,
-      f.destination,
-      a1.airportLabel AS sourceLabel,
-      a2.airportLabel AS destinationLabel,
-      CONCAT(a1.airportLabel, ' → ', a2.airportLabel) AS route,
-      COUNT(t.ticketID) AS ticketsSold,
-      f.price,
-      SUM(f.price) AS revenuePerTicket, 
-      COUNT(t.ticketID) * f.price AS totalRevenue 
-    FROM Flights f
-    JOIN Airports a1 ON f.source = a1.airportID
-    JOIN Airports a2 ON f.destination = a2.airportID
+      tr.route,
+      tr.sourceLabel,
+      tr.destinationLabel,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 1 THEN p.amount ELSE 0 END) AS Jan,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 2 THEN p.amount ELSE 0 END) AS Feb,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 3 THEN p.amount ELSE 0 END) AS Mar,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 4 THEN p.amount ELSE 0 END) AS Apr,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 5 THEN p.amount ELSE 0 END) AS May,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 6 THEN p.amount ELSE 0 END) AS Jun,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 7 THEN p.amount ELSE 0 END) AS Jul,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 8 THEN p.amount ELSE 0 END) AS Aug,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 9 THEN p.amount ELSE 0 END) AS Sep,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 10 THEN p.amount ELSE 0 END) AS Oct,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 11 THEN p.amount ELSE 0 END) AS Nov,
+      SUM(CASE WHEN MONTH(p.paymentDate) = 12 THEN p.amount ELSE 0 END) AS December
+    FROM TopRoutes tr
+    JOIN Flights f ON f.source = tr.source AND f.destination = tr.destination
     JOIN Tickets t ON f.flightID = t.flightID
-    JOIN Payments p ON t.bookingID = p.bookingID
+    JOIN Bookings b ON t.bookingID = b.bookingID
+    JOIN Payments p ON b.bookingID = p.bookingID
     WHERE 
       t.ticketStatus = 'used'
-      AND p.paymentDate >= (NOW() - INTERVAL ${interval})
-    GROUP BY f.source, f.destination, f.price
-    ORDER BY totalRevenue DESC
-    LIMIT 3
+      AND p.paymentStatus = 'paid'
+      AND YEAR(p.paymentDate) = YEAR(CURDATE())
+    GROUP BY tr.route, tr.sourceLabel, tr.destinationLabel
+    ORDER BY tr.route;
   `);
 
   return rows;
 };
+
+
 
 
 

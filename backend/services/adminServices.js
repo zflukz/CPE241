@@ -8,15 +8,7 @@ exports.getTopFiveAirlines = () => repo.topFiveAirlines();
 
 
 exports.getTop3RoutesRevenue = async () => {
-  const week = await repo.getTop3RoutesRevenue('1 WEEK');
-  const month = await repo.getTop3RoutesRevenue('1 MONTH');
-  const year = await repo.getTop3RoutesRevenue('1 YEAR');
-
-  return {
-    week,
-    month,
-    year
-  };
+  return await repo.getTop3RoutesRevenue();
 };
 
 exports.getCancelStats = async () => {
