@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../components/Table';
 import { Badge } from '../components/Badge';
@@ -10,91 +11,144 @@ import { AiOutlineCheck, AiOutlineClockCircle, AiOutlineCloseCircle } from 'reac
 import { HiBarsArrowDown } from "react-icons/hi2";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import TopNavbar from '../components/TopNavBar';
-import { Link } from 'react-router-dom';
-
+import AddBookingModal from '../components/ui/AddBooking';
 interface Passenger {
   id: string;
   name: string;
   email: string;
   phone: string;
   seat: string;
+  seatClass: string; // New field
+  baggageWeight: number; // New field
+  gender: string; // New field
+  dob: string; // New field
+  nationality: string; // New field
+  passportNumber: string; // New field
 }
 
 interface Booking {
   flightNo: string;
   bookingID: string;
-  numberofpassenger: string;
-  date: string;
+  numberofpassenger: number;  // Change this from string to number
+  date: Date;
   username: string;
   status: 'Confirmed' | 'Pending' | 'Canceled';
   passenger: Passenger[];
 }
 
+interface Flight {
+  id: string;
+  flightNumber: string;
+}
 const initialBookings: Booking[] = [
   { 
-    flightNo: 'TG102', bookingID: 'B001', numberofpassenger: '2', username: 'user001', date: '9 Mar 2025', status: 'Confirmed', 
+    flightNo: 'TG102', bookingID: 'B001', numberofpassenger: 2, username: 'user001',     date: new Date('2025-03-09T10:00:00'), // ✅ ใช้ ISO string เพื่อสร้าง Date object
+ status: 'Pending', 
     passenger: [
-      { id: 'p1', name: 'John Doe', email: 'john@example.com', phone: '1234567890', seat: '12A' },
-      { id: 'p2', name: 'Jane Doe', email: 'jane@example.com', phone: '0987654321', seat: '12B' }
+      { 
+        id: 'p1', name: 'John Doe', email: 'john@example.com', phone: '1234567890', seat: '12A', seatClass: 'First Class',
+        baggageWeight: 0, gender: 'Male', dob: '1990-01-01', nationality: 'Thai', passportNumber: 'B1234567' 
+      },
+      { 
+        id: 'p2', name: 'Jane Doe', email: 'jane@example.com', phone: '0987654321', seat: '12B', seatClass: 'First Class',
+        baggageWeight: 0, gender: 'Female', dob: '1992-02-02', nationality: 'Thai', passportNumber: 'B1234568' 
+      }
     ]
   },
   { 
-    flightNo: 'TG102', bookingID: 'B002', numberofpassenger: '3', username: 'user002', date: '9 Mar 2025', status: 'Confirmed', 
+    flightNo: 'TG102', bookingID: 'B002', numberofpassenger: 3, username: 'user002',     date: new Date('2025-03-09T10:00:00'), // ✅ ใช้ ISO string เพื่อสร้าง Date object
+ status: 'Confirmed', 
     passenger: [
-      { id: 'p3', name: 'Alice Smith', email: 'alice@example.com', phone: '2345678901', seat: '13A' },
-      { id: 'p4', name: 'Bob White', email: 'bob@example.com', phone: '3456789012', seat: '13B' },
-      { id: 'p5', name: 'Charlie Green', email: 'charlie@example.com', phone: '4567890123', seat: '13C' }
+      { 
+        id: 'p3', name: 'Alice Smith', email: 'alice@example.com', phone: '2345678901', seat: '13A', seatClass: 'Economy',
+        baggageWeight: 0, gender: 'Female', dob: '1991-03-03', nationality: 'Thai', passportNumber: 'B1234569' 
+      },
+      { 
+        id: 'p4', name: 'Bob White', email: 'bob@example.com', phone: '3456789012', seat: '13B', seatClass: 'Economy',
+        baggageWeight: 0, gender: 'Male', dob: '1990-04-04', nationality: 'Thai', passportNumber: 'B1234570' 
+      },
+      { 
+        id: 'p5', name: 'Charlie Green', email: 'charlie@example.com', phone: '4567890123', seat: '13C', seatClass: 'Economy',
+        baggageWeight: 0, gender: 'Male', dob: '1993-05-05', nationality: 'Thai', passportNumber: 'B1234571' 
+      }
     ]
   },
   { 
-    flightNo: 'TG102', bookingID: 'B003', numberofpassenger: '2', username: 'user003', date: '9 Mar 2025', status: 'Pending', 
+    flightNo: 'TG103', bookingID: 'B003', numberofpassenger: 1, username: 'user003', date: new Date('2025-03-09T10:00:00'), status: 'Pending', 
     passenger: [
-      { id: 'p6', name: 'David Blue', email: 'david@example.com', phone: '5678901234', seat: '14A' },
-      { id: 'p7', name: 'Eva Yellow', email: 'eva@example.com', phone: '6789012345', seat: '14B' }
+      { 
+        id: 'p6', name: 'David Brown', email: 'david@example.com', phone: '5678901234', seat: '14A', seatClass: 'Business',
+        baggageWeight: 0, gender: 'Male', dob: '1989-06-06', nationality: 'Thai', passportNumber: 'B1234572' 
+      }
     ]
   },
   { 
-    flightNo: 'TG102', bookingID: 'B004', numberofpassenger: '4', username: 'user004', date: '9 Mar 2025', status: 'Confirmed', 
+    flightNo: 'TG104', bookingID: 'B004', numberofpassenger: 4, username: 'user004', date: new Date('2025-03-09T10:00:00'), status: 'Canceled', 
     passenger: [
-      { id: 'p8', name: 'Frank Black', email: 'frank@example.com', phone: '7890123456', seat: '15A' },
-      { id: 'p9', name: 'Grace White', email: 'grace@example.com', phone: '8901234567', seat: '15B' },
-      { id: 'p10', name: 'Hannah Purple', email: 'hannah@example.com', phone: '9012345678', seat: '15C' },
-      { id: 'p11', name: 'Ian Red', email: 'ian@example.com', phone: '0123456789', seat: '15D' }
+      { 
+        id: 'p7', name: 'Emma White', email: 'emma@example.com', phone: '6789012345', seat: '15A', seatClass: 'Economy',
+        baggageWeight: 0, gender: 'Female', dob: '1994-07-07', nationality: 'Thai', passportNumber: 'B1234573' 
+      },
+      { 
+        id: 'p8', name: 'Frank Black', email: 'frank@example.com', phone: '7890123456', seat: '15B', seatClass: 'Economy',
+        baggageWeight: 0, gender: 'Male', dob: '1988-08-08', nationality: 'Thai', passportNumber: 'B1234574' 
+      },
+      { 
+        id: 'p9', name: 'Grace Blue', email: 'grace@example.com', phone: '8901234567', seat: '15C', seatClass: 'Economy',
+        baggageWeight: 0, gender: 'Female', dob: '1995-09-09', nationality: 'Thai', passportNumber: 'B1234575' 
+      },
+      { 
+        id: 'p10', name: 'Hank Red', email: 'hank@example.com', phone: '9012345678', seat: '15D', seatClass: 'Economy',
+        baggageWeight: 0, gender: 'Male', dob: '1992-10-10', nationality: 'Thai', passportNumber: 'B1234576' 
+      }
     ]
-  },
-  { 
-    flightNo: 'TG102', bookingID: 'B005', numberofpassenger: '1', username: 'user005', date: '9 Mar 2025', status: 'Confirmed', 
-    passenger: [
-      { id: 'p12', name: 'Jack Orange', email: 'jack@example.com', phone: '1234567891', seat: '16A' }
-    ]
-  },
-  { 
-    flightNo: 'TG102', bookingID: 'B006', numberofpassenger: '1', username: 'user006', date: '9 Mar 2025', status: 'Canceled', 
-    passenger: [
-      { id: 'p13', name: 'Kelly Pink', email: 'kelly@example.com', phone: '2345678902', seat: '17A' }
-    ]
-  },
-  { 
-    flightNo: 'TG102', bookingID: 'B007', numberofpassenger: '3', username: 'user007', date: '9 Mar 2025', status: 'Confirmed', 
-    passenger: [
-      { id: 'p14', name: 'Leo Brown', email: 'leo@example.com', phone: '3456789013', seat: '18A' },
-      { id: 'p15', name: 'Mia Grey', email: 'mia@example.com', phone: '4567890124', seat: '18B' },
-      { id: 'p16', name: 'Nina Silver', email: 'nina@example.com', phone: '5678901235', seat: '18C' }
-    ]
-  },
+  }
 ];
 
-// ... all imports remain the same ...
-
 const ManageBookings = () => {
-  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  // Get updated booking from location state
+  const location = useLocation();
+  const updatedBooking = location.state?.updatedBooking;
+  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [bookingDate, setBookingDate] = useState<Date | null>(null);
+  const [selectedFlight, setSelectedFlight] = useState<string>(''); // Assuming flight is a string, adjust if needed
+  
+  const handleAddBooking = (newBooking: any) => {
+    console.log('[ManageBookings] Received booking data:', newBooking); // ✅ log ฝั่งรับ
+    setBookings((prevBookings) => [...prevBookings, newBooking]);
+    setModalOpen(false);  // ปิด modal หลังจากเพิ่มการจอง
+
+  };
+
+
+  const onFlightChange = (newFlight: string) => {
+    setSelectedFlight(newFlight); // Assuming selectedFlight is being managed in the parent component
+  };
+  
+
+  useEffect(() => {
+    if (updatedBooking) {
+      const normalizedBooking = {
+        ...updatedBooking,
+        status: updatedBooking.bookingStatus, // Normalize the status field name
+      };
+  
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) =>
+          booking.bookingID === normalizedBooking.bookingID ? normalizedBooking : booking
+        )
+      );
+    }
+  }, [updatedBooking]);
+  
+  
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentBookings = bookings.slice(indexOfFirstItem, indexOfLastItem);
-
   const totalPages = Math.ceil(bookings.length / itemsPerPage);
 
   const handleDelete = (bookingID: string) => {
@@ -106,13 +160,35 @@ const ManageBookings = () => {
       setCurrentPage(newPage);
     }
   };
+
+  const handleSave = (newBooking: Booking) => {
+    // Ensure the numberofpassenger is a number
+    if (typeof newBooking.numberofpassenger === 'string') {
+      newBooking.numberofpassenger = parseInt(newBooking.numberofpassenger, 10);
+    }
+  
+    if (!newBooking.date) {
+      console.error('Booking date is required');
+      return;
+    }
+  
+    setBookings((prevBookings) => [...prevBookings, newBooking]);
+  };
+  
+  
+  
+
+  const [flights, setFlights] = useState<{ id: string; flightNumber: string }[]>([
+    { id: '1', flightNumber: 'TG101' },
+    { id: '2', flightNumber: 'FD302' }
+  ]);
   
   return (
-    <div className="flex min-h-screen font-sans">
+    <div className="flex font-sans">
       <Navbar />
       <div className='flex-1 flex flex-col'>
         <TopNavbar />
-        <div className="flex-1 p-8 bg-[#FAF9F8] min-h-screen overflow-auto">
+        <div className="flex-1 p-8 bg-[#FAF9F8] overflow-auto">
           <div className="flex items-center justify-between mt-8 mb-8">
             <h1 className="text-[24px] font-bold">Booking List ({bookings.length})</h1>
 
@@ -132,9 +208,9 @@ const ManageBookings = () => {
               </Button>
 
               <Button
-                variant="outline"
-                onClick={() => {}} 
-                className="flex items-center gap-2 bg-[#C84B2F] text-white font-semibold border-0 hover:bg-[#C63F21] focus:ring-0"
+                  variant="outline"
+                  onClick={() => setModalOpen(true)}
+                  className="flex items-center gap-2 bg-[#C84B2F] text-white font-semibold"
               >
                 <HiPlusCircle size={20} />
                 Add Booking
@@ -157,9 +233,9 @@ const ManageBookings = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentBookings.map((booking, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="text-center">{booking.date}</TableCell>
+                {currentBookings.map((booking) => (
+                  <TableRow key={booking.bookingID} >
+                    <TableCell className="text-center">{booking.date?.toLocaleDateString()}</TableCell>
                     <TableCell className="text-center">{booking.flightNo}</TableCell>
                     <TableCell className="text-center">{booking.bookingID}</TableCell>
                     <TableCell className="text-center">{booking.username || '-'}</TableCell>
@@ -183,18 +259,10 @@ const ManageBookings = () => {
                         </Button>
                       </Link>
 
-                      <Link
-  to="/managebooking/editbooking"
-  state={{ booking: { ...booking, passengers: booking.passenger } }}
->
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'
-                        >
+                      <Link to="/managebooking/editbooking" state={{ booking }}>
+                        <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'>
                           <FiEdit2 size={18} />
                         </Button>
-
                       </Link>
 
                       <Button
@@ -209,9 +277,13 @@ const ManageBookings = () => {
                   </TableRow>
                 ))}
               </TableBody>
+
+
+
             </Table>
           </div>
 
+          {/* Pagination */}
           <div className="mt-6 flex justify-center items-center gap-4 flex-wrap text-center">
             <div className="text-sm text-gray-600 whitespace-nowrap">
               Page {currentPage} of {totalPages}
@@ -225,28 +297,42 @@ const ManageBookings = () => {
                   {[...Array(totalPages)].map((_, index) => (
                     <PaginationItem key={index}>
                       <button
-                        className={`w-9 h-9  rounded-xl text-sm ${
-                          currentPage === index + 1 ? 'bg-[#C84B2F] text-white' : 'hover:bg-[#C84B2F]/20'
+                        className={`w-9 h-9 rounded-xl text-sm transition-colors duration-300 ${
+                          currentPage === index + 1
+                            ? 'bg-[#C84B2F] text-white'
+                            : 'text-black hover:bg-[#C84B2F]/20 hover:text-black'
                         }`}
                         onClick={() => handlePageChange(index + 1)}
                       >
                         {index + 1}
                       </button>
                     </PaginationItem>
-                  ))}
+                    ))}
                   <PaginationItem>
-                    <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          </div>
-
-
+                <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </div>
-  );
+  </div>
+  <AddBookingModal
+  isOpen={isModalOpen}
+  onClose={() => setModalOpen(false)}
+  onSave={handleAddBooking}
+  flights={flights}
+  onFlightChange={onFlightChange}
+  bookingDate={bookingDate}
+  setBookingDate={setBookingDate}
+  selectedFlight={selectedFlight} // ✅ Add this line
+/>
+
+
+
+
+</div>
+);
 };
 
 export default ManageBookings;

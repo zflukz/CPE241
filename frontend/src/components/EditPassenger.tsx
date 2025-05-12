@@ -6,11 +6,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 interface Passenger {
   id: string; 
-  fullName: string;
+  name: string;
   gender: 'Male' | 'Female';
   dob: string;
   nationality: string;
-  passportnumber: string;
+  passportNumber: string;
   seat: string;
   seatClass: 'First Class'| 'Business Class' |  'Premium Economy' | 'Economy Class';
   baggageWeight: number;
@@ -35,21 +35,21 @@ const seatClassOptions = [
 ];
 
 const EditPassenger: React.FC<EditPassengerProps> = ({ passenger, onUpdatePassenger, onClose }) => {
-  const [fullName, setFullName] = useState(passenger.fullName);
+  const [fullName, setFullName] = useState(passenger.name);
   const [gender, setGender] = useState(passenger.gender);
   const [dob, setDob] = useState<Date | null>(passenger.dob ? new Date(passenger.dob) : null);
   const [nationality, setNationality] = useState(passenger.nationality);
-  const [passportnumber, setPassportnumber] = useState(passenger.passportnumber);
+  const [passportnumber, setPassportnumber] = useState(passenger.passportNumber);
   const [seat, setSeat] = useState(passenger.seat);
   const [seatClass, setSeatClass] = useState(passenger.seatClass);
   const [baggageWeight, setBaggageWeight] = useState<number>(passenger.baggageWeight || 0);
 
   useEffect(() => {
-    setFullName(passenger.fullName);
+    setFullName(passenger.name);
     setGender(passenger.gender);
     setDob(passenger.dob ? new Date(passenger.dob) : null);
     setNationality(passenger.nationality);
-    setPassportnumber(passenger.passportnumber);
+    setPassportnumber(passenger.passportNumber);
     setSeat(passenger.seat);
     setSeatClass(passenger.seatClass);
     setBaggageWeight(passenger.baggageWeight || 0);
@@ -61,11 +61,11 @@ const EditPassenger: React.FC<EditPassengerProps> = ({ passenger, onUpdatePassen
     // Ensure dob is a valid date, otherwise fallback to an empty string
     const updatedPassenger: Passenger = {
       ...passenger,
-      fullName,
+      name: fullName,  
       gender,
       dob: dob ? dob.toISOString().split('T')[0] : '',
       nationality,
-      passportnumber,
+      passportNumber: passportnumber,
       seat,
       seatClass,
       baggageWeight,
@@ -130,13 +130,15 @@ const EditPassenger: React.FC<EditPassengerProps> = ({ passenger, onUpdatePassen
               <SelectField label="Seat Class" value={seatClass} options={seatClassOptions} onChange={setSeatClass} />
             </div>
             <div className="flex-1">
-              <Input
-                label="Baggage Weight (kg)"
-                type="number"
-                value={baggageWeight.toString()}
-                onChange={(val) => setBaggageWeight(Number(val))}
-                required
-              />
+            <Input
+              label="Baggage Weight (kg)"
+              type="number"
+              value={baggageWeight.toString()}
+              onChange={(val) => setBaggageWeight(Number(val))}
+              required
+              disabled={true} 
+            />
+
             </div>
           </div>
 
@@ -169,13 +171,15 @@ const Input = ({
   value,
   onChange,
   type = 'text',
-  required = false
+  required = false,
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (val: string) => void;
   type?: string;
   required?: boolean;
+  disabled?: boolean;
 }) => (
   <div>
     <label className="block text-[16px] font-medium text-gray-700 mb-1">{label}</label>
@@ -184,10 +188,15 @@ const Input = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       required={required}
-      className="w-full pl-4 py-2 border rounded-lg bg-white hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
+      disabled={disabled}
+      className={`w-full px-4 py-2 border rounded-lg ${
+        disabled ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white hover:bg-[#F7F7F7]'
+      }`}
     />
   </div>
 );
+
+
 
 // Reusable SelectField Component
 const SelectField = ({

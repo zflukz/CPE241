@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { HiArrowLeftCircle, HiMiniUsers, HiMiniUserPlus } from "react-icons/hi2";
 import { Button } from "../components/Button";
 import { Badge } from "../components/Badge";
@@ -12,19 +12,19 @@ import {
 } from "../components/Table";
 import Navbar from "../components/Navbar";
 import TopNavbar from "../components/TopNavBar";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import EditPassenger from "../components/EditPassenger"; 
 import AddPassenger from "../components/AddnewPassenger";
-import FlightInformation from "../components/FlightInformation"; // Import the new FlightInformation component
+import FlightInformation from "../components/FlightInformation"; 
 
 interface Passenger {
   id: string; 
-  fullName: string;
+  name: string;
   gender: 'Male' | 'Female';
   dob: string;
   nationality: string;
-  passportnumber: string;
+  passportNumber: string;
   seat: string;
   seatClass: 'First Class'| 'Business Class' | 'Premium Economy' | 'Economy Class';
   baggageWeight: number;
@@ -36,7 +36,7 @@ const getSeatClassVariant = (seatClass: Passenger["seatClass"]) => {
       return "First";
     case "Business Class":
       return "Business";
-	case "Premium Economy":
+    case "Premium Economy":
       return "Premium";
     default:
       return "Economy";
@@ -44,67 +44,82 @@ const getSeatClassVariant = (seatClass: Passenger["seatClass"]) => {
 };
 
 const BookingOverview: React.FC = () => {
-  const [passengers, setPassengers] = useState<Passenger[]>([
-    {
-      id: "P003",
-      fullName: "Thanrada Tungweerapornpong",
-      seat: "A1",
-      seatClass: "First Class",
-      baggageWeight: 0,
-      gender: "Female", 
-      dob: "1990-01-01", 
-      nationality: "Thai", 
-      passportnumber: "B1234567",
-    },
-    {
-      id: "P004",
-      fullName: "Thanaphat Phomak",
-      seat: "A2",
-      seatClass: "First Class",
-      baggageWeight: 0,
-      gender: "Male", 
-      dob: "1985-05-20", 
-      nationality: "Thai", 
-      passportnumber: "B1234567",
-    },
-  ]);
-  
-  const [isClient, setIsClient] = useState(false);
+  const location = useLocation(); // Use location to get state passed from Manage Booking
+  const { booking } = location.state;
+  const navigate = useNavigate();
+
+  // Ensure booking and passengers are always available before calling hooks
+  const passengersData = booking?.passengers || [];
+
+  // State hooks - should be declared unconditionally
+  const [passengers, setPassengers] = useState<Passenger[]>(passengersData);  
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
-  const [selectedPassenger, setSelectedPassenger] = useState<Passenger | null>(null); 
+  const [selectedPassenger, setSelectedPassenger] = useState<Passenger | null>(null);
   
+  useEffect(() => {
+    console.log("Location state:", location.state);  // ตรวจสอบข้อมูล
+    if (!booking || !booking.passengers || booking.passengers.length === 0) {
+      console.error("No passenger data found");
+    } else {
+      console.log("Updated passengers:", booking.passengers);
+    }
+  }, [location]);
+  
+  
+  const handleSaveAll = () => {
+    const updatedBooking = {
+      ...booking,  // Keep original booking data
+      passengers,  // Update passenger data
+      numberofpassenger: passengers.length,  // Correct field name
+      status: booking.status,  // Keep the existing status
+    };
+    console.log("Updated booking status:", updatedBooking.status);  
+    navigate('/managebooking', { state: { updatedBooking } });
+  };
+
   const handleDelete = (index: number) => {
     setPassengers((prev) => prev.filter((_, i) => i !== index));
   };
+
+  const handleUpdatePassenger = (updatedPassenger: Passenger) => {
+    console.log("Receiving from AddPassenger:", updatedPassenger);
   
+    setPassengers((prev) => {
+      const exists = prev.find(p => p.id === updatedPassenger.id);
+      if (exists) {
+        return prev.map(p => p.id === updatedPassenger.id ? updatedPassenger : p);
+      } else {
+        return [...prev, updatedPassenger];
+      }
+    });
+  };
+
   const handleEdit = (passenger: Passenger) => {
     setSelectedPassenger(passenger);
     setIsEditModalOpen(true);
   };
-  
+
   const generateUniqueId = (): string => {
     let idNumber = 1;
     let newId = '';
     const existingIds = new Set(passengers.map(p => p.id));
-    
     do {
       newId = `P${String(idNumber).padStart(3, '0')}`;
       idNumber++;
     } while (existingIds.has(newId));
-    
     return newId;
   };
-  
+
   const handleAdd = () => {
-    const newId = generateUniqueId(); // ใช้ id ที่ไม่ซ้ำจริง ๆ
+    const newId = generateUniqueId();
     const newPassenger: Passenger = {
       id: newId,
-      fullName: "",
+      name: "",
       gender: "Male",
       dob: "",
       nationality: "",
-      passportnumber: "",
+      passportNumber: "",
       seat: "",
       seatClass: "Economy Class",
       baggageWeight: 0,
@@ -112,34 +127,33 @@ const BookingOverview: React.FC = () => {
     setSelectedPassenger(newPassenger);
     setIsAddModalOpen(true);
   };
-  
-  
+
   const handleSave = (updatedPassenger: Passenger) => {
     setPassengers((prev) => {
-      const existingPassengerIndex = prev.findIndex(p => p.id === updatedPassenger.id);
+      const updatedPassengers = prev.map((passenger) =>
+        passenger.id === updatedPassenger.id ? updatedPassenger : passenger
+      );
   
-      if (existingPassengerIndex > -1) {
-        // Update the existing passenger
-        prev[existingPassengerIndex] = updatedPassenger;
-      } else {
-        // If no existing passenger with this ID, add the new passenger
-        prev.push(updatedPassenger);
+      if (!prev.find((p) => p.id === updatedPassenger.id)) {
+        updatedPassengers.push(updatedPassenger);
       }
-      return [...prev]; // Ensure the array is a new reference to trigger re-render
+  
+      return [...updatedPassengers];
     });
   
-    // Close the modals after saving
     setIsEditModalOpen(false);
     setIsAddModalOpen(false);
-    setSelectedPassenger(null); // Reset selected passenger
+    setSelectedPassenger(null);
   };
+
   
- return (
+
+  return (
     <div className="flex min-h-screen font-sans">
       <Navbar />
       <div className="flex-1 flex flex-col bg-[#FAF9F8]">
         <TopNavbar />
-  
+
         {/* Back Button */}
         <div className="flex pl-6 pt-6 pb-[20px] text-gray-800">
           <Link to="/managebooking">
@@ -156,29 +170,26 @@ const BookingOverview: React.FC = () => {
 
         {/* Flight Information */}
         <FlightInformation
-		flightInfo={{
-			flightNumber: "TG102",
-			airline: "Thai Airways",
-			departure: "DMK",  // Replace 'Bangkok' with the airport code
-			arrival: "LAX",    // Replace 'Los Angeles' with the airport code
-			departuredate: "Sun, 9 March 2025", // Format it as a date string
-			arrivaldate: "Mon, 10 March 2025", // Format it as a date string
-			departuretime: "10:30 AM", // Departure time
-			arrivaltime: "00:30 AM", // Arrival time
-			status: "On Time", // Add status
-      facilities: ["wifi", "entertainment", "meal"]  
-		}}
-		getCountryFromAirportCode={(airportCode: string) => {
-			// Implement this function to return a country name based on the airport code
-			const airportCountries: { [key: string]: string } = {
-				DMK: "Don Mueang International Airport (DMK)",
-				LAX: "Los Angeles International Airport (LAX)",
-			};
-			return airportCountries[airportCode] || "Unknown";
-		}}
-		/>
-
-
+          flightInfo={{
+            flightNumber: "TG102",
+            airline: "Thai Airways",
+            departure: "DMK", 
+            arrival: "LAX", 
+            departuredate: "Sun, 9 March 2025", 
+            arrivaldate: "Mon, 10 March 2025", 
+            departuretime: "10:30 AM", 
+            arrivaltime: "00:30 AM", 
+            status: "On Time", 
+            facilities: ["wifi", "entertainment", "meal"]  
+          }}
+          getCountryFromAirportCode={(airportCode: string) => {
+            const airportCountries: { [key: string]: string } = {
+              DMK: "Don Mueang International Airport (DMK)",
+              LAX: "Los Angeles International Airport (LAX)",
+            };
+            return airportCountries[airportCode] || "Unknown";
+          }}
+        />
 
         {/* Passenger Header */}
         <div className="flex justify-center pt-[20px]">
@@ -220,39 +231,58 @@ const BookingOverview: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {passengers.map((passenger, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="text-center">{passenger.fullName}</TableCell>
-                    <TableCell className="text-center">{passenger.seat}</TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant={getSeatClassVariant(passenger.seatClass)}>
-                        {passenger.seatClass}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">{passenger.baggageWeight} kg</TableCell>
-                    <TableCell className="flex gap-2 justify-center">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"
-                        onClick={() => handleEdit(passenger)} 
-                      >
-                        <FiEdit2 size={18} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"
-                        onClick={() => handleDelete(index)}
-                      >
-                        <FiTrash2 size={18} />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+  {passengers.length > 0 ? (
+    passengers.map((passenger, index) => (
+      <TableRow key={index}>
+        <TableCell className="text-center">{passenger.name}</TableCell>
+        <TableCell className="text-center">{passenger.seat}</TableCell>
+        <TableCell className="text-center">
+          <Badge variant={getSeatClassVariant(passenger.seatClass)}>
+            {passenger.seatClass}
+          </Badge>
+        </TableCell>
+        <TableCell className="text-center">{passenger.baggageWeight} kg</TableCell>
+        <TableCell className="flex gap-2 justify-center">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"
+            onClick={() => handleEdit(passenger)}
+          >
+            <FiEdit2 size={18} />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"
+            onClick={() => handleDelete(index)}
+          >
+            <FiTrash2 size={18} />
+          </Button>
+        </TableCell>
+      </TableRow>
+    ))
+  ) : (
+    <TableRow>
+      <TableCell colSpan={5} className="text-center">
+        No passengers found
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
+
             </Table>
           </div>
+        </div>
+
+        <div className="flex justify-center mt-6">
+          <Button
+            size="md"
+            className="bg-[#C84B2F] text-white hover:bg-[#A8371C] rounded-[10px] shadow-md focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
+            onClick={handleSaveAll}
+          >
+            Save All & Return to Manage Booking
+          </Button>
         </div>
       </div>
 
@@ -260,18 +290,18 @@ const BookingOverview: React.FC = () => {
       {isAddModalOpen && selectedPassenger && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-8">
           <div className="bg-white p-8 rounded-lg w-full max-w-lg sm:max-w-xl relative">
-          <AddPassenger
-            passenger={selectedPassenger}
-            onUpdatePassenger={handleSave} // ✅ ใช้ฟังก์ชันที่มีอยู่แล้ว
-            onClose={() => {
-              setIsAddModalOpen(false);     // ✅ ปิด modal
-              setSelectedPassenger(null);   // ✅ ล้างข้อมูล
-            }}
-          />
+            <AddPassenger
+              passenger={selectedPassenger}
+              onUpdatePassenger={handleUpdatePassenger} 
+              onClose={() => {
+                setIsAddModalOpen(false);
+                setSelectedPassenger(null);
+              }}
+            />
           </div>
         </div>
       )}
-  
+
       {/* EditPassenger Modal */}
       {isEditModalOpen && selectedPassenger && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-8">
@@ -281,8 +311,7 @@ const BookingOverview: React.FC = () => {
               onUpdatePassenger={handleSave}
               onClose={() => setIsEditModalOpen(false)}
             />
-        </div>
-		
+          </div>
         </div>
       )}
     </div>

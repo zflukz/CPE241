@@ -6,11 +6,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 interface Passenger {
   id: string;
-  fullName: string;
+  name: string;
   gender: 'Male' | 'Female';
   dob: string;
   nationality: string;
-  passportnumber: string;
+  passportNumber: string;
   seat: string;
   seatClass: 'First Class' | 'Business Class' | 'Premium Economy' | 'Economy Class';
   baggageWeight: number;
@@ -35,11 +35,11 @@ const seatClassOptions = [
 ];
 
 const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenger, onClose }) => {
-  const [fullName, setFullName] = useState<string>(passenger.fullName || '');
+  const [fullName, setFullName] = useState<string>(passenger.name || '');
   const [gender, setGender] = useState<'Male' | 'Female'>(passenger.gender || 'Male');
   const [dob, setDob] = useState<Date | null>(passenger.dob ? new Date(passenger.dob) : null);
   const [nationality, setNationality] = useState<string>(passenger.nationality || '');
-  const [passportnumber, setPassportnumber] = useState<string>(passenger.passportnumber || '');
+  const [passportnumber, setPassportnumber] = useState<string>(passenger.passportNumber || '');
   const [seat, setSeat] = useState<string>(passenger.seat || '');
   const [seatClass, setSeatClass] = useState<'First Class' | 'Business Class' | 'Premium Economy' | 'Economy Class'>(
     passenger.seatClass || 'Economy Class'
@@ -48,7 +48,7 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
 
   useEffect(() => {
     if (passenger.id === '') {  // Check for a new passenger case
-      setFullName('');
+      setFullName('');  // Replace setName with setFullName
       setGender('Male');
       setDob(null);
       setNationality('');
@@ -57,17 +57,18 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
       setSeatClass('Economy Class');
       setBaggageWeight(0);
     } else {
-      setFullName(passenger.fullName);
+      setFullName(passenger.name);  // Replace setName with setFullName
       setGender(passenger.gender);
       const dobDate = passenger.dob ? new Date(passenger.dob) : null;
       setDob(dobDate && !isNaN(dobDate.getTime()) ? dobDate : null);  // Ensure it's a valid Date object
       setNationality(passenger.nationality);
-      setPassportnumber(passenger.passportnumber);
+      setPassportnumber(passenger.passportNumber);
       setSeat(passenger.seat);
       setSeatClass(passenger.seatClass);
       setBaggageWeight(passenger.baggageWeight);
     }
   }, [passenger]);
+  
  
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,19 +76,22 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
   
     const updatedPassenger: Passenger = {
       ...passenger,
-      fullName,
+      name: fullName,  
       gender,
       dob: dob?.toISOString().split('T')[0] || '',
       nationality,
-      passportnumber,
+      passportNumber: passportnumber,
       seat,
       seatClass,
       baggageWeight,
     };
   
+    console.log('Updated Passenger:', updatedPassenger);  // เช็คค่าก่อนส่ง
+  
     onUpdatePassenger(updatedPassenger); // Call the parent function to update the state
     onClose(); // Close the modal
   };
+  
   
 
   return (

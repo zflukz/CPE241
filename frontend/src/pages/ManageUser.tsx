@@ -3,13 +3,11 @@ import { Button } from '../components/Button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../components/Table';
 import { Badge } from '../components/Badge';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '../components/Pagination';
-import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import Navbar from '../components/Navbar';
-import { HiPlusCircle } from "react-icons/hi";
 import { HiBarsArrowDown } from "react-icons/hi2";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import TopNavbar from '../components/TopNavBar';
-import { Link } from 'react-router-dom';
 import EditUser from '../components/EditUser';
 
 interface User {
@@ -28,11 +26,26 @@ const ManageUsers = () => {
     { userID: 'U005', username: 'user005', email: 'yourname@gmail.com', role: 'person' },
     { userID: 'U006', username: 'user006', email: 'yourname@gmail.com', role: 'admin' },
     { userID: 'U007', username: 'user007', email: 'yourname@gmail.com', role: 'person' },
+    { userID: 'U008', username: 'user008', email: 'yourname@gmail.com', role: 'person' },
+    { userID: 'U009', username: 'user009', email: 'yourname@gmail.com', role: 'person' },
+    { userID: 'U010', username: 'user010', email: 'yourname@gmail.com', role: 'admin' },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 5;
 
+  const totalPages = Math.ceil(users.length / usersPerPage);
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+  
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
   const handleEditClick = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
@@ -54,6 +67,18 @@ const ManageUsers = () => {
   const handleDeleteUser = (userID: string) => {
     const updatedUsers = users.filter(user => user.userID !== userID);
     setUsers(updatedUsers);
+    // Adjust page if needed after deletion
+    if ((currentPage - 1) * usersPerPage >= updatedUsers.length && currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   return (
@@ -91,7 +116,7 @@ const ManageUsers = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user, index) => (
+                {currentUsers.map((user, index) => (
                   <TableRow key={index}>
                     <TableCell className="text-center">{user.userID}</TableCell>
                     <TableCell className="text-center">{user.username}</TableCell>
@@ -125,19 +150,38 @@ const ManageUsers = () => {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between mt-6">
-            <div className="text-sm text-gray-600">Rows per page: 7</div>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
+          {/* Pagination */}
+          <div className="mt-6 flex justify-center items-center gap-4 flex-wrap text-center">
+            <div className="text-sm text-gray-600 whitespace-nowrap">
+              Page {currentPage} of {totalPages}
+            </div>
+            <div className="flex items-center gap-2">
+              <Pagination>
+                <PaginationContent className="flex items-center gap-2">
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                  </PaginationItem>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <PaginationItem key={index}>
+                     <button
+                        className={`w-9 h-9 rounded-xl text-sm transition-colors duration-300 ${
+                          currentPage === index + 1
+                            ? 'bg-[#C84B2F] text-white'
+                            : 'text-black hover:bg-[#C84B2F]/20 hover:text-black'
+                        }`}
+                        onClick={() => handlePageChange(index + 1)}
+                      >
+                        {index + 1}
+                      </button>
+                    </PaginationItem>
+                    ))}
+                  <PaginationItem>
+                <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      </div>
         </div>
       </div>
 

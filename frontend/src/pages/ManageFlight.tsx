@@ -46,13 +46,20 @@ const ManageFlights = () => {
   const [isAddModalOpen, setAddModalOpen] = React.useState(false);
   const [selectedFlight, setSelectedFlight] = React.useState<FlightInfo | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 5;  
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
 
-  const filteredFlights = flights.filter((flight) =>
-    flight.flightNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    flight.airline.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    flight.routeFrom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    flight.routeTo.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+
+const filteredFlights = flights.filter((flight) =>
+flight.flightNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+flight.airline.toLowerCase().includes(searchQuery.toLowerCase()) ||
+flight.routeFrom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+flight.routeTo.toLowerCase().includes(searchQuery.toLowerCase())
+);
+const paginatedFlights = filteredFlights.slice(startIndex, endIndex);
+const totalPages = Math.ceil(filteredFlights.length / itemsPerPage);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -63,7 +70,13 @@ const ManageFlights = () => {
       year: 'numeric',
     });
   };
-  
+
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   const handleEditClick = (flight: Flight) => {
     const mappedFlight: FlightInfo = {
       flightNumber: flight.flightNo,
@@ -139,7 +152,7 @@ const ManageFlights = () => {
       <Navbar />
       <div className='flex-1 flex flex-col'>
         <TopNavbar />
-        <div className="flex-1 p-8 bg-[#FAF9F8] min-h-screen overflow-auto">
+        <div className="flex-1 p-8 bg-[#FAF9F8] overflow-auto">
           <div className="flex items-center justify-between mt-8 mb-8">
             <h1 className="text-[24px] font-bold">Flight List ({filteredFlights.length})</h1>
 
@@ -186,7 +199,7 @@ const ManageFlights = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredFlights.map((flight) => (
+              {paginatedFlights.map((flight) => (
                   <TableRow key={flight.flightNo}>
                     <TableCell className="text-center">{flight.flightNo}</TableCell>
                     <TableCell className="text-center">{flight.airline}</TableCell>
@@ -271,18 +284,38 @@ const ManageFlights = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between mt-6">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+          <div className="mt-6 flex justify-center items-center gap-4 flex-wrap text-center">
+            <div className="text-sm text-gray-600 whitespace-nowrap">
+              Page {currentPage} of {totalPages}
+            </div>
+            <div className="flex items-center gap-2">
+              <Pagination>
+                <PaginationContent className="flex items-center gap-2">
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                  </PaginationItem>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <PaginationItem key={index}>
+                      <button
+                        className={`w-9 h-9 rounded-xl text-sm transition-colors duration-300 ${
+                          currentPage === index + 1
+                            ? 'bg-[#C84B2F] text-white'
+                            : 'text-black hover:bg-[#C84B2F]/20 hover:text-black'
+                        }`}
+                        onClick={() => handlePageChange(index + 1)}
+                      >
+                        {index + 1}
+                      </button>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
+
         </div>
       </div>
 
