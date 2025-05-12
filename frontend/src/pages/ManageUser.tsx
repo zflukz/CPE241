@@ -77,13 +77,29 @@ const ManageUsers = () => {
     setSelectedUser(null);
   };
 
-  const handleUpdateUser = (updatedUser: User) => {
-    const updatedUsers = users.map((user) =>
-      user.userID === updatedUser.userID ? updatedUser : user
+  const handleUpdateUser = async (updatedUser: User | null) => {
+  if (!updatedUser) return handleCloseModal();
+
+  try {
+    const response = await fetch(`http://localhost:8000/api/users/${updatedUser.userID}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedUser),
+    });
+
+    if (!response.ok) throw new Error('Failed to update user');
+
+    // Update local state
+    const newUsers = users.map((u) =>
+      u.userID === updatedUser.userID ? updatedUser : u
     );
-    setUsers(updatedUsers);
+    setUsers(newUsers);
     handleCloseModal();
-  };
+  } catch (err) {
+    alert(err instanceof Error ? err.message : 'Unknown error');
+  }
+};
+
 
   const handleDeleteUser = (userID: string) => {
     const updatedUsers = users.filter(user => user.userID !== userID);
@@ -211,10 +227,10 @@ const ManageUsers = () => {
 
       {isModalOpen && selectedUser && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-8">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg sm:max-w-xl relative">
-            <EditUser user={selectedUser} onUpdateUser={handleUpdateUser} />
-          </div>
-        </div>
+  <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg sm:max-w-xl relative">
+    <EditUser user={selectedUser} onUpdateUser={handleUpdateUser} />
+  </div>
+</div>
       )}
     </div>
   );

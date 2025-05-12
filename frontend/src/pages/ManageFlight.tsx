@@ -10,17 +10,20 @@ import TopNavbar from '../components/TopNavBar';
 import FlightPath from '../components/Route';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
+
 interface Flight {
-  flightID :string;
+  flightID: string;
   label: string;
   airlineID: string;
   source: string;
   destination: string;
-  departTime: string;
-  departureDate: string;
-  arrivalTime: string;
-  arrivalDate: string;
+  departTime: string; // ISO string
+  arrivalTime: string; // ISO string
+  availableSeats: number;
+  price: number;
+  seat: 'economyClass' | 'premiumClass' | 'businessClass';
   flightStatus: 'onTime' | 'delay' | 'cancel';
+  flightFacilityID?: string;
 }
 
 
@@ -28,7 +31,7 @@ interface Flight {
 const FLIGHTS_PER_PAGE = 7;
 
 const ManageFlights = () => {
-  const [flights, setflights] = useState<Flight[]>([ ]);
+  const [flights, setflights] = useState<Flight[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(FLIGHTS_PER_PAGE);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,18 +55,68 @@ const ManageFlights = () => {
     setSelectedFlight(null);
   };
 
-  const handleUpdateFlight = (updatedFlight: Flight) => {
-    const updatedFlights = flights.map((flight) =>
-      flight.label === updatedFlight.label ? updatedFlight : flight
-    );
-    // Update flights list state (should ideally be set via setFlights)
-    handleCloseModal();
+  const toMySQLDateTime = (iso: string): string => {
+    const date = new Date(iso);
+    return date.toISOString().slice(0, 19); // "YYYY-MM-DDTHH:MM:SS"
   };
 
-  const handleDeleteFlight = (label: string) => {
-    const updatedFlights = flights.filter(flight => flight.label !== label);
-    // Update flights list state (should ideally be set via setFlights)
+  const handleUpdateFlight = async (updatedFlight: Flight) => {
+    const payload = {
+      ...updatedFlight,
+      departTime: toMySQLDateTime(updatedFlight.departTime),
+      arrivalTime: toMySQLDateTime(updatedFlight.arrivalTime),
+      flightStatus: updatedFlight.flightStatus.toUpperCase(),
+    };
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/flights/${updatedFlight.flightID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error("Update failed");
+
+      const updatedFlights = flights.map((f) =>
+        f.flightID === updatedFlight.flightID ? updatedFlight : f
+      );
+      setflights(updatedFlights);
+      handleCloseModal();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Unknown error");
+    }
   };
+
+
+
+  const handleDeleteFlight = async (label: string) => {
+  const flightToDelete = flights.find((flight) => flight.label === label);
+  if (!flightToDelete) {
+    alert("Flight not found");
+    return;
+  }
+
+  const confirmDelete = window.confirm(`Are you sure you want to delete flight ${label}?`);
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(`http://localhost:8000/api/flights/${flightToDelete.flightID}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete the flight");
+    }
+
+    const updatedFlights = flights.filter((flight) => flight.label !== label);
+    setflights(updatedFlights);
+    alert(`Flight ${label} has been deleted.`);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "Unknown error");
+  }
+};
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -78,61 +131,37 @@ const ManageFlights = () => {
     setCurrentPage(1); // Reset to first page
   };
   useEffect(() => {
-  const fetchFlights = async () => {
-    try {
-      const response = await fetch("http://localhost:8000/api/flights/");
-      if (!response.ok) throw new Error("Failed to fetch flights");
+    const fetchFlights = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/flights/");
+        if (!response.ok) throw new Error("Failed to fetch flights");
 
-      const data: Flight[] = await response.json();
+        const data: Flight[] = await response.json();
 
-      const formattedFlights = data.map((item: Flight): Flight => {
-        const departDateObj = new Date(item.departTime);
-        const arrivalDateObj = new Date(item.arrivalTime);
-
-        const formattedDepartDate = departDateObj.toLocaleDateString('en-US', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        });
-        const formattedDepartTime = departDateObj.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        });
-
-        const formattedArrivalDate = arrivalDateObj.toLocaleDateString('en-US', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        });
-        const formattedArrivalTime = arrivalDateObj.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        });
-
-        return {
+        const formattedFlights = data.map((item: Flight): Flight => ({
           flightID: item.flightID,
           label: item.label,
           airlineID: item.airlineID,
           source: item.source,
           destination: item.destination,
-          departTime: formattedDepartDate,
-          departureDate: formattedDepartTime,
-          arrivalTime: formattedArrivalDate,
-          arrivalDate: formattedArrivalTime,
+          departTime: item.departTime,      // ISO string
+          arrivalTime: item.arrivalTime,    // ISO string
+          availableSeats: item.availableSeats,
+          price: item.price,
+          seat: item.seat,
           flightStatus: item.flightStatus,
-        };
-      });
+          flightFacilityID: item.flightFacilityID || '', // fallback if undefined
+        }));
 
-      setflights(formattedFlights); // ✅ Make sure your state is named `flights` not `users`
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Unknown error");
-    }
-  };
 
-  fetchFlights();
-}, []);
+        setflights(formattedFlights); // ✅ Make sure your state is named `flights` not `users`
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Unknown error");
+      }
+    };
+
+    fetchFlights();
+  }, []);
   return (
     <div className="flex min-h-screen font-sans">
       {/* Navbar */}
@@ -192,11 +221,23 @@ const ManageFlights = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      {flight.departTime} <br /> {flight.departureDate}
+                      {new Date(flight.departTime).toLocaleDateString('en-US')}<br />
+                      {new Date(flight.departTime).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
                     </TableCell>
+
                     <TableCell className="text-center">
-                      {flight.departTime} <br /> {flight.arrivalDate}
+                      {new Date(flight.arrivalTime).toLocaleDateString('en-US')}<br />
+                      {new Date(flight.arrivalTime).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
                     </TableCell>
+
                     <TableCell className="text-center">
                       <Badge variant={
                         flight.flightStatus === 'onTime' ? 'success' :
@@ -228,57 +269,194 @@ const ManageFlights = () => {
           </div>
 
           {/* Pagination Controls */}
-           <div className="flex items-center justify-between mt-6 flex-wrap gap-4">
-                       <div className="flex items-center gap-2 text-sm text-gray-600">
-                         <span>Rows per page:</span>
-                         <select
-                           className="border rounded-md px-2 py-1"
-                           value={rowsPerPage}
-                           onChange={handleRowsPerPageChange}
-                         >
-                           {[5, 7, 10, 15].map((count) => (
-                             <option key={count} value={count}>{count}</option>
-                           ))}
-                         </select>
-                       </div>
-           
-                       <Pagination>
-                         <PaginationContent>
-                           <PaginationItem>
-                             <PaginationPrevious
-                               onClick={handlePreviousPage}
-                               className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                             />
-                           </PaginationItem>
-                           <PaginationItem className="text-sm px-4 flex items-center">
-                             Page {currentPage} of {totalPages}
-                           </PaginationItem>
-                           <PaginationItem>
-                             <PaginationNext
-                               onClick={handleNextPage}
-                               className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                             />
-                           </PaginationItem>
-                         </PaginationContent>
-                       </Pagination>
-                     </div>
+          <div className="flex items-center justify-between mt-6 flex-wrap gap-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>Rows per page:</span>
+              <select
+                className="border rounded-md px-2 py-1"
+                value={rowsPerPage}
+                onChange={handleRowsPerPageChange}
+              >
+                {[5, 7, 10, 15].map((count) => (
+                  <option key={count} value={count}>{count}</option>
+                ))}
+              </select>
+            </div>
+
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={handlePreviousPage}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+                <PaginationItem className="text-sm px-4 flex items-center">
+                  Page {currentPage} of {totalPages}
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={handleNextPage}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </div>
       </div>
 
       {/* Edit Modal */}
+      {/* Edit Modal */}
       {isModalOpen && selectedFlight && (
-        <div className="modal">
-          <h2>Edit Flight</h2>
-          {/* Form for editing flight details */}
-          <input
-            type="text"
-            value={selectedFlight.label}
-            onChange={(e) => setSelectedFlight({ ...selectedFlight, label: e.target.value })}
-          />
-          <button onClick={() => handleUpdateFlight(selectedFlight)}>Save Changes</button>
-          <button onClick={handleCloseModal}>Close</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-[700px]">
+            <h2 className="text-xl font-bold text-[#C84B2F] mb-4">Edit Flight</h2>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-1">Flight No.</label>
+                <input
+                  type="text"
+                  value={selectedFlight.label}
+                  disabled
+                  className="w-full border p-2 rounded bg-gray-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Airline ID</label>
+                <input
+                  type="text"
+                  value={selectedFlight.airlineID}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, airlineID: e.target.value })}
+                  className="w-full border p-2 rounded"
+                  placeholder="Airline ID"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Source</label>
+                <input
+                  type="text"
+                  value={selectedFlight.source}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, source: e.target.value })}
+                  className="w-full border p-2 rounded"
+                  placeholder="Source"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Destination</label>
+                <input
+                  type="text"
+                  value={selectedFlight.destination}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, destination: e.target.value })}
+                  className="w-full border p-2 rounded"
+                  placeholder="Destination"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Departure Time</label>
+                <input
+                  type="datetime-local"
+                  value={selectedFlight.departTime}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, departTime: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Arrival Time</label>
+                <input
+                  type="datetime-local"
+                  value={selectedFlight.arrivalTime}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, arrivalTime: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Available Seats</label>
+                <input
+                  type="number"
+                  value={selectedFlight.availableSeats}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, availableSeats: parseInt(e.target.value) })}
+                  className="w-full border p-2 rounded"
+                  placeholder="Available Seats"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Price</label>
+                <input
+                  type="number"
+                  value={selectedFlight.price}
+                  step="0.01"
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, price: parseFloat(e.target.value) })}
+                  className="w-full border p-2 rounded"
+                  placeholder="Price"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Seat Class</label>
+                <select
+                  value={selectedFlight.seat}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, seat: e.target.value as Flight['seat'] })}
+                  className="w-full border p-2 rounded"
+                >
+                  <option value="economyClass">economyClass</option>
+                  <option value="premiumClass">premiumClass</option>
+                  <option value="businessClass">businessClass</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Flight Status</label>
+                <select
+                  value={selectedFlight.flightStatus}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, flightStatus: e.target.value as Flight['flightStatus'] })}
+                  className="w-full border p-2 rounded"
+                >
+                  <option value="onTime">On Time</option>
+                  <option value="delay">Delay</option>
+                  <option value="cancel">Cancel</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Facility ID</label>
+                <input
+                  type="text"
+                  value={selectedFlight.flightFacilityID || ''}
+                  onChange={(e) => setSelectedFlight({ ...selectedFlight, flightFacilityID: e.target.value })}
+                  className="w-full border p-2 rounded"
+                  placeholder="Facility ID"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-[#C84B2F] text-white px-4 py-2 rounded hover:bg-[#A03E26]"
+                onClick={() => handleUpdateFlight(selectedFlight)}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
         </div>
+
       )}
+
     </div>
   );
 };

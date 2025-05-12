@@ -12,6 +12,8 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import TopNavbar from '../components/TopNavBar';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import { EditBookingModal } from '../components/EditBookingModal';
+
 
 interface Booking {
   flightID: string;
@@ -32,51 +34,55 @@ const initialBookings: Booking[] = [
   { flightID: 'TG102', bookingID: 'B007', numberofpassenger: '3', userID: 'user007', bookingDate: '9 Mar 2025', bookingStatus: 'confirmed' },
 ];
 
+
+
+
 const ManageBookings = () => {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const totalPages = Math.ceil(bookings.length / rowsPerPage);
 
   const paginatedBookings = bookings.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-   useEffect(() => {
-  const fetchAirports = async () => {
-    try {
-      const response = await fetch("http://localhost:8000/api/bookings/");
-      if (!response.ok) throw new Error("Failed to fetch airports");
-      const data: Booking[] = await response.json();
+  useEffect(() => {
+    const fetchAirports = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/bookings/");
+        if (!response.ok) throw new Error("Failed to fetch airports");
+        const data: Booking[] = await response.json();
 
-      const user = data.map((item: Booking): Booking => {
-        const date = new Date(item.bookingDate);
-        const day = date.getDate();
-        const month = date.toLocaleString('en-US', { month: 'long' }); // "June"
-        const year = date.getFullYear();
-        const formattedDate = `${day}-${month}-${year}`;
+        const user = data.map((item: Booking): Booking => {
+          const date = new Date(item.bookingDate);
+          const day = date.getDate();
+          const month = date.toLocaleString('en-US', { month: 'long' }); // "June"
+          const year = date.getFullYear();
+          const formattedDate = `${day}-${month}-${year}`;
 
-        return {
-          flightID: item.flightID,
-          bookingID: item.bookingID,
-          bookingDate: formattedDate,  // ✅ formatted string here
-          userID: item.userID,
-          bookingStatus: item.bookingStatus,
-          numberofpassenger: '1',
-        };
-      });
+          return {
+            flightID: item.flightID,
+            bookingID: item.bookingID,
+            bookingDate: formattedDate,  // ✅ formatted string here
+            userID: item.userID,
+            bookingStatus: item.bookingStatus,
+            numberofpassenger: '1',
+          };
+        });
 
-      console.log(user);
-      setBookings(user);
+        console.log(user);
+        setBookings(user);
 
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Unknown error");
-    }
-  };
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Unknown error");
+      }
+    };
 
-  fetchAirports();
-}, []);
+    fetchAirports();
+  }, []);
   const handleDelete = (bookingID: string) => {
     setBookings((prev) => prev.filter((booking) => booking.bookingID !== bookingID));
   };
@@ -92,6 +98,17 @@ const ManageBookings = () => {
 
   const handlePreviousPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleEdit = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveBooking = (updated: Booking) => {
+    setBookings(prev =>
+      prev.map(b => b.bookingID === updated.bookingID ? updated : b)
+    );
   };
 
   return (
@@ -151,7 +168,7 @@ const ManageBookings = () => {
                     <TableCell className="text-center">
                       <Badge variant={
                         booking.bookingStatus === 'confirmed' ? 'success' :
-                        booking.bookingStatus === 'pending' ? 'warning' : 'destructive'
+                          booking.bookingStatus === 'pending' ? 'warning' : 'destructive'
                       }>
                         {booking.bookingStatus === 'confirmed' && <AiOutlineCheck className="mr-2 text-green-500" />}
                         {booking.bookingStatus === 'pending' && <AiOutlineClockCircle className="mr-2 text-yellow-500" />}
@@ -163,7 +180,17 @@ const ManageBookings = () => {
                       <Link to="/managebooking/bookingoverview">
                         <Button size="sm" variant="ghost" className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"><FiEye size={18} /></Button>
                       </Link>
-                      <Button size="sm" variant="ghost" className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"><FiEdit2 size={18} /></Button>
+                      
+                      {/* edit btn */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]"
+                        onClick={() => handleEdit(booking)}
+                      >
+                        <FiEdit2 size={18} />
+                      </Button>
+
                       <Button
                         size="sm"
                         variant="ghost"
@@ -215,7 +242,18 @@ const ManageBookings = () => {
           </div>
         </div>
       </div>
+
+      {selectedBooking && (
+        <EditBookingModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          booking={selectedBooking}
+          onSave={handleSaveBooking}
+        />
+      )}
+
     </div>
+
   );
 };
 
