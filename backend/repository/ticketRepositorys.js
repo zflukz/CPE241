@@ -66,6 +66,6 @@ exports.getBoardingPassByPassengerID = async (passengerID) => {
     `, [passengerID]);
     //console.log("ROWS: " ,rows);
   
-    return rows[0]; // สำคัญมาก! ต้อง return แค่แถวเดียว
+    return rows[0]; 
   };
   
