@@ -171,19 +171,19 @@ const EditUser: React.FC<EditUserProps> = ({ user, onUpdateUser }) => {
           {/* Buttons */}
           <div className="flex justify-end space-x-4 pt-4 text-[14px]">
             <button
-              type="submit"
-              className="flex items-center jutify-center px-[15px] py-[5px] bg-[#C84B2F] text-white font-semibold rounded-[9px] hover:bg-[#C63F21] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
-            >
-              <HiInboxArrowDown size={20} className="mr-2" />
-              Save Changes
-            </button>
-            <button
               type="button"
               onClick={() => window.location.reload()}
               className="flex items-center jutify-center px-[15px] py-[5px] bg-[#F4F4F4] text-[#333333] font-semibold rounded-[9px] hover:bg-[#D4D4D4] focus:outline-none focus:ring-2 focus:ring-[#F4F4F4]"
             >
               <HiMiniXMark size={20} className="mr-2" />
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex items-center jutify-center px-[15px] py-[5px] bg-[#C84B2F] text-white font-semibold rounded-[9px] hover:bg-[#C63F21] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
+            >
+              <HiInboxArrowDown size={20} className="mr-2" />
+              Save Changes
             </button>
           </div>
         </form>

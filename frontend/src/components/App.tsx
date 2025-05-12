@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import ContentPage from "./pages/ContentPage";
-import ReservationPage from "./pages/ReservationPage";
-import ManageFlightPage from "./pages/ManageFlight";
-import ManageBookings from "./pages/ManageBooking";
-import ManageUsers from "./pages/ManageUser";
-import SearchFlight from "./pages/SearchFlight";
-import BookingOverview from "./pages/BookingOverview";
-import EditPassenger from "./components/EditPassenger";
-import FlightOverview from "./pages/FlightOverview";
-import EditBooking from "./pages/EditBooking";
+import Login from "../pages/Login";
+import ContentPage from "../pages/ContentPage";
+import ReservationPage from "../pages/ReservationPage";
+import ManageFlightPage from "../pages/ManageFlight";
+import ManageBookings from "../pages/ManageBooking";
+import ManageUsers from "../pages/ManageUser";
+import SearchFlight from "../pages/SearchFlight";
+import BookingOverview from "../pages/BookingOverview";
+import EditPassenger from "../components/EditPassenger";
+import FlightOverview from "../pages/FlightOverview";
+import EditBooking from "../pages/EditBooking";
 
 interface Passenger {
   id: string;  

@@ -1,5 +1,6 @@
 import React from "react";
 import { FaPlane } from "react-icons/fa";
+import { HiMiniWifi, HiFilm } from "react-icons/hi2";
 import { Badge } from "../components/Badge"; // Assuming Badge component exists
 
 type FlightInformationProps = {
@@ -13,6 +14,7 @@ type FlightInformationProps = {
     departuretime: string;
     arrivaltime: string;
     status: string;
+    facilities?: string[]; 
   };
   getCountryFromAirportCode: (airportCode: string) => string;
 };
@@ -40,12 +42,40 @@ const FlightInformation: React.FC<FlightInformationProps> = ({ flightInfo, getCo
             <div className="text-[16px] text-black font-semibold mr-[20px]">Flight</div>
             <div className="font-normal">{flightInfo.flightNumber} | {flightInfo.airline}</div>
             {/* Status Section */}
-            <div className="flex pl-[80px] items-center">
+            <div className="flex pl-[50px] items-center">
               <div className="text-[16px] text-black font-semibold mr-[20px]">Status</div>
               <div className="inline-flex items-center">
                 <Badge variant={statusBadgeVariant}>{flightStatus}</Badge>
               </div>
             </div>
+            {/* Facilities Section */}
+        {flightInfo.facilities && flightInfo.facilities.length > 0 && (
+          <div className="flex flex-col items-start pl-[50px]">
+            <div className="flex items-center text-[16px] text-black font-semibold ">
+                Facilities
+              <div className="flex items-center">
+              <Badge variant="facilities" size="text-sm" className="ml-[20px] flex items-center gap-2">
+                {flightInfo.facilities?.map((facility, idx) => (
+                  <span key={idx}>
+                    {facility === 'wifi' && <HiMiniWifi className="text-[#C84B2F] text-lg" />}
+                    {facility === 'entertainment' && <HiFilm className="text-[#C84B2F] text-lg" />}
+                    {facility === 'meal' && (
+                      <i
+                        className="fi fi-sr-utensils text-[#C84B2F] text-sm"
+                        style={{
+                          verticalAlign: 'middle',
+                          lineHeight: 'normal',
+                        }}
+                      />
+                    )}
+                  </span>
+                ))}
+              </Badge>
+
+              </div>
+            </div>
+          </div>
+        )}
           </div>
         </div>
 
@@ -69,6 +99,8 @@ const FlightInformation: React.FC<FlightInformationProps> = ({ flightInfo, getCo
             <div className="text-[16px] mt-[10px] font-semibold">{getCountryFromAirportCode(flightInfo.arrival)}</div>
           </div>
         </div>
+
+        
       </div>
     </div>
   );

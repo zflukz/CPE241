@@ -8,7 +8,7 @@ import TopAfterLoginNavbar from '../components/TopNavbar-AfterLogin';
 import SearchFlightCard from '../components/SearchInSearchFlight';
 import { FaSearch } from 'react-icons/fa';
 import PopupChangeSearch from '../components/PopupChangeSearch';
-import ReviewPopup from './ReviewPopup';
+import ReviewPopup from '../components/ReviewPopup';
 
 const flightsData: Flight[] = [
   {

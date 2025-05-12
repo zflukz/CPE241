@@ -106,7 +106,7 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
               label="Gender"
               value={gender}
               options={genderOptions}
-              onChange={(val) => setGender(val as 'Male' | 'Female')}
+              onChange={(val) => setGender(val?.value as 'Male' | 'Female')}
             />
             </div>
           </div>
@@ -151,7 +151,7 @@ const AddPassenger: React.FC<AddPassengerProps> = ({ passenger, onUpdatePassenge
               label="Seat Class"
               value={seatClass}
               options={seatClassOptions}
-              onChange={(val) => setSeatClass(val as 'First Class' | 'Business Class' | 'Premium Economy' | 'Economy Class')}
+              onChange={(val) => setSeatClass(val?.value as 'First Class' | 'Business Class' | 'Premium Economy' | 'Economy Class')}
             />
             </div>
             <div className="flex-1">
@@ -215,25 +215,47 @@ const Input = ({
 );
 
 const SelectField = ({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-}) => (
-  <div>
-    <label className="block text-[16px] font-medium text-gray-700 mb-1">{label}</label>
-    <Select
-      options={options}
-      value={options.find(option => option.value === value)}
-      onChange={(selected) => onChange((selected as { value: string }).value)}  
-      className="w-full"
-    />
-  </div>
-);
+	label,
+	value,
+	options,
+	onChange,
+  }: {
+	label: string;
+	value: string;
+	options: { value: string; label: string }[];
+	onChange: (val: { value: string; label: string } | null) => void; // Updated type
+  }) => (
+	<div>
+	  <label className="block text-[16px] font-medium text-gray-700 mb-1">{label}</label>
+	  <Select
+		options={options}
+		value={options.find((opt) => opt.value === value)}
+		onChange={(selected: { value: string; label: string } | null) => {
+		  onChange(selected); // Pass the whole object (value and label)
+		}}
+		styles={{
+		  control: (provided, state) => ({
+			...provided,
+			width: 'w-full',
+			height: '42px',
+			borderRadius: '8px',
+			borderColor: state.isFocused ? '' : '',
+			boxShadow: state.isFocused ? '0 0 0 2px #FCD9D1' : 'none',
+			backgroundColor: '#FFFFFF',
+			'&:hover': {
+			  backgroundColor: '#F7F7F7',
+			},
+		  }),
+		  option: (provided, state) => ({
+			...provided,
+			backgroundColor: state.isSelected ? '#C84B2F' : state.isFocused ? '#FCD9D1' : 'white',
+			color: state.isSelected ? 'white' : 'black',
+			fontWeight: state.isSelected ? 'bold' : 'normal',
+			cursor: 'pointer',
+		  }),
+		}}
+	  />
+	</div>
+  );
 
 export default AddPassenger;

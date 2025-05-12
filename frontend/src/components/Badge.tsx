@@ -3,7 +3,7 @@ import React from "react";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant: "success" | "default" | "warning" | "destructive" | "danger" 
-  | undefined | "First" | "Business" | "Premium" | "Economy"; 
+  | undefined | "First" | "Business" | "Premium" | "Economy" |"facilities"; 
   size?: "text-xs" | "text-sm" | "text-lg" | "text-xl";
 }
 
@@ -22,6 +22,7 @@ export function Badge({ className, variant = "default", size = "text-xs", ...pro
         variant === "Business" && "bg-[#EDE9FE]/80 text-[#6B21A8]",
         variant === "Premium" && "bg-[#D1FAE5]/80 text-[#065F46]",
         variant === "Economy" && "bg-[#F3F4F6]/80 text-[#374151]",
+        variant === "facilities" && "bg-white text-[#C84B2F]  rounded-full",
         className
       )}
       {...props}

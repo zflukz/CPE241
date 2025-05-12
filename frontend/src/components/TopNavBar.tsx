@@ -12,6 +12,7 @@ const TopNavbar: React.FC = () => {
     "/managebooking/bookingoverview": "Booking Overview",
     "/manageflight/flightoverview": "Flight Overview",
     "/manageuser": "User Management",
+    "/managebooking/editbooking": "Edit Booking",
   };
 
   const dashboardPaths = ["/dashboard", "/reports"];

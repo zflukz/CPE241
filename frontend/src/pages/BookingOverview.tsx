@@ -146,7 +146,7 @@ const BookingOverview: React.FC = () => {
             <Button
               variant="outline"
               size="md"
-              className="mb-4 bg-white hover:bg-[#F7F7F7] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C84B2F] text-black"
+              className="mb-4 bg-white hover:bg-[#F7F7F7] rounded-[10px] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C84B2F] text-black"
             >
               <HiArrowLeftCircle className="mr-[10px]" size={20} />
               Back
@@ -165,7 +165,8 @@ const BookingOverview: React.FC = () => {
 			arrivaldate: "Mon, 10 March 2025", // Format it as a date string
 			departuretime: "10:30 AM", // Departure time
 			arrivaltime: "00:30 AM", // Arrival time
-			status: "On Time" // Add status
+			status: "On Time", // Add status
+      facilities: ["wifi", "entertainment", "meal"]  
 		}}
 		getCountryFromAirportCode={(airportCode: string) => {
 			// Implement this function to return a country name based on the airport code

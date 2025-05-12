@@ -1,0 +1,20 @@
+.react-time-picker__wrapper {
+	border-radius: 8px;
+	padding: 6px 10px;
+	border: 1px solid #d1d5db; /* Tailwind's gray-300 */
+	background-color: white;
+  }
+  
+  .react-time-picker__wrapper:hover {
+	background-color: #F7F7F7;
+  }
+  
+  .react-time-picker__inputGroup__input {
+	outline: none;
+  }
+  
+  .react-time-picker__inputGroup__input:focus {
+	border-color: #C84B2F;
+	box-shadow: 0 0 0 2px #FCD9D1;
+  }
+  

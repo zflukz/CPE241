@@ -12,6 +12,14 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import TopNavbar from '../components/TopNavBar';
 import { Link } from 'react-router-dom';
 
+interface Passenger {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  seat: string;
+}
+
 interface Booking {
   flightNo: string;
   bookingID: string;
@@ -19,25 +27,86 @@ interface Booking {
   date: string;
   username: string;
   status: 'Confirmed' | 'Pending' | 'Canceled';
+  passenger: Passenger[];
 }
 
 const initialBookings: Booking[] = [
-  { flightNo: 'TG102', bookingID: 'B001', numberofpassenger: '2', username: 'user001', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B002', numberofpassenger: '3', username: 'user002', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B003', numberofpassenger: '2', username: 'user003', date: '9 Mar 2025', status: 'Pending' },
-  { flightNo: 'TG102', bookingID: 'B004', numberofpassenger: '4', username: 'user004', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B005', numberofpassenger: '1', username: 'user005', date: '9 Mar 2025', status: 'Confirmed' },
-  { flightNo: 'TG102', bookingID: 'B006', numberofpassenger: '1', username: 'user006', date: '9 Mar 2025', status: 'Canceled' },
-  { flightNo: 'TG102', bookingID: 'B007', numberofpassenger: '3', username: 'user007', date: '9 Mar 2025', status: 'Confirmed' },
+  { 
+    flightNo: 'TG102', bookingID: 'B001', numberofpassenger: '2', username: 'user001', date: '9 Mar 2025', status: 'Confirmed', 
+    passenger: [
+      { id: 'p1', name: 'John Doe', email: 'john@example.com', phone: '1234567890', seat: '12A' },
+      { id: 'p2', name: 'Jane Doe', email: 'jane@example.com', phone: '0987654321', seat: '12B' }
+    ]
+  },
+  { 
+    flightNo: 'TG102', bookingID: 'B002', numberofpassenger: '3', username: 'user002', date: '9 Mar 2025', status: 'Confirmed', 
+    passenger: [
+      { id: 'p3', name: 'Alice Smith', email: 'alice@example.com', phone: '2345678901', seat: '13A' },
+      { id: 'p4', name: 'Bob White', email: 'bob@example.com', phone: '3456789012', seat: '13B' },
+      { id: 'p5', name: 'Charlie Green', email: 'charlie@example.com', phone: '4567890123', seat: '13C' }
+    ]
+  },
+  { 
+    flightNo: 'TG102', bookingID: 'B003', numberofpassenger: '2', username: 'user003', date: '9 Mar 2025', status: 'Pending', 
+    passenger: [
+      { id: 'p6', name: 'David Blue', email: 'david@example.com', phone: '5678901234', seat: '14A' },
+      { id: 'p7', name: 'Eva Yellow', email: 'eva@example.com', phone: '6789012345', seat: '14B' }
+    ]
+  },
+  { 
+    flightNo: 'TG102', bookingID: 'B004', numberofpassenger: '4', username: 'user004', date: '9 Mar 2025', status: 'Confirmed', 
+    passenger: [
+      { id: 'p8', name: 'Frank Black', email: 'frank@example.com', phone: '7890123456', seat: '15A' },
+      { id: 'p9', name: 'Grace White', email: 'grace@example.com', phone: '8901234567', seat: '15B' },
+      { id: 'p10', name: 'Hannah Purple', email: 'hannah@example.com', phone: '9012345678', seat: '15C' },
+      { id: 'p11', name: 'Ian Red', email: 'ian@example.com', phone: '0123456789', seat: '15D' }
+    ]
+  },
+  { 
+    flightNo: 'TG102', bookingID: 'B005', numberofpassenger: '1', username: 'user005', date: '9 Mar 2025', status: 'Confirmed', 
+    passenger: [
+      { id: 'p12', name: 'Jack Orange', email: 'jack@example.com', phone: '1234567891', seat: '16A' }
+    ]
+  },
+  { 
+    flightNo: 'TG102', bookingID: 'B006', numberofpassenger: '1', username: 'user006', date: '9 Mar 2025', status: 'Canceled', 
+    passenger: [
+      { id: 'p13', name: 'Kelly Pink', email: 'kelly@example.com', phone: '2345678902', seat: '17A' }
+    ]
+  },
+  { 
+    flightNo: 'TG102', bookingID: 'B007', numberofpassenger: '3', username: 'user007', date: '9 Mar 2025', status: 'Confirmed', 
+    passenger: [
+      { id: 'p14', name: 'Leo Brown', email: 'leo@example.com', phone: '3456789013', seat: '18A' },
+      { id: 'p15', name: 'Mia Grey', email: 'mia@example.com', phone: '4567890124', seat: '18B' },
+      { id: 'p16', name: 'Nina Silver', email: 'nina@example.com', phone: '5678901235', seat: '18C' }
+    ]
+  },
 ];
+
+// ... all imports remain the same ...
 
 const ManageBookings = () => {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentBookings = bookings.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(bookings.length / itemsPerPage);
 
   const handleDelete = (bookingID: string) => {
     setBookings((prev) => prev.filter((booking) => booking.bookingID !== bookingID));
   };
 
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+  
   return (
     <div className="flex min-h-screen font-sans">
       <Navbar />
@@ -47,6 +116,7 @@ const ManageBookings = () => {
           <div className="flex items-center justify-between mt-8 mb-8">
             <h1 className="text-[24px] font-bold">Booking List ({bookings.length})</h1>
 
+            {/* Search & Filter + Add */}
             <div className="flex gap-4 w-full max-w-[450px] justify-end">
               <div className="relative flex-1">
                 <input
@@ -63,6 +133,7 @@ const ManageBookings = () => {
 
               <Button
                 variant="outline"
+                onClick={() => {}} 
                 className="flex items-center gap-2 bg-[#C84B2F] text-white font-semibold border-0 hover:bg-[#C63F21] focus:ring-0"
               >
                 <HiPlusCircle size={20} />
@@ -71,6 +142,7 @@ const ManageBookings = () => {
             </div>
           </div>
 
+          {/* Booking Table */}
           <div className="bg-white rounded-lg shadow-md border border-[#D4D4D4]">
             <Table>
               <TableHeader>
@@ -85,7 +157,7 @@ const ManageBookings = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {bookings.map((booking, index) => (
+                {currentBookings.map((booking, index) => (
                   <TableRow key={index}>
                     <TableCell className="text-center">{booking.date}</TableCell>
                     <TableCell className="text-center">{booking.flightNo}</TableCell>
@@ -105,15 +177,31 @@ const ManageBookings = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="flex gap-2 justify-center">
-                      <Link to="/managebooking/bookingoverview">
-                        <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'><FiEye size={18} /></Button>
+                      <Link to="/managebooking/bookingoverview" state={{ booking }}>
+                        <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'>
+                          <FiEye size={18} />
+                        </Button>
                       </Link>
-                      <Button size="sm" variant="ghost" className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'><FiEdit2 size={18} /></Button>
+
+                      <Link
+  to="/managebooking/editbooking"
+  state={{ booking: { ...booking, passengers: booking.passenger } }}
+>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'
+                        >
+                          <FiEdit2 size={18} />
+                        </Button>
+
+                      </Link>
+
                       <Button
                         size="sm"
                         variant="ghost"
                         className='text-[#C84B2F] hover:bg-[#C63F21]/10 focus:ring-2 focus:ring-[#C63F21]'
-                        onClick={() => handleDelete(booking.bookingID)} // Add the delete functionality here
+                        onClick={() => handleDelete(booking.bookingID)}
                       >
                         <FiTrash2 size={18} />
                       </Button>
@@ -124,19 +212,37 @@ const ManageBookings = () => {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between mt-6">
-            <div className="text-sm text-gray-600">Rows per page: 3</div>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+          <div className="mt-6 flex justify-center items-center gap-4 flex-wrap text-center">
+            <div className="text-sm text-gray-600 whitespace-nowrap">
+              Page {currentPage} of {totalPages}
+            </div>
+            <div className="flex items-center gap-2">
+              <Pagination>
+                <PaginationContent className="flex items-center gap-2">
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                  </PaginationItem>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <PaginationItem key={index}>
+                      <button
+                        className={`w-9 h-9  rounded-xl text-sm ${
+                          currentPage === index + 1 ? 'bg-[#C84B2F] text-white' : 'hover:bg-[#C84B2F]/20'
+                        }`}
+                        onClick={() => handlePageChange(index + 1)}
+                      >
+                        {index + 1}
+                      </button>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
+
+
         </div>
       </div>
     </div>

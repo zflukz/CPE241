@@ -100,7 +100,7 @@ const EditPassenger: React.FC<EditPassengerProps> = ({ passenger, onUpdatePassen
                   selected={dob}
                   onChange={(date: Date | null) => setDob(date)}
                   dateFormat="yyyy-MM-dd"
-                  className="w-full pl-4 py-2 border rounded-[9px] bg-white hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#C84B2F] font-sans text-[16px] leading-tight"
+                  className="w-[224px] pl-4 py-2 border rounded-[9px] bg-white hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#C84B2F] font-sans text-[16px] leading-tight"
                   maxDate={new Date()}
                   showMonthDropdown
                   showYearDropdown
@@ -142,19 +142,19 @@ const EditPassenger: React.FC<EditPassengerProps> = ({ passenger, onUpdatePassen
 
           <div className="flex justify-end space-x-4 pt-4 text-[14px]">
             <button
-              type="submit"
-              className="flex items-center justify-center px-[15px] py-[5px] bg-[#C84B2F] text-white font-semibold rounded-[9px] hover:bg-[#C63F21] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
-            >
-              <HiInboxArrowDown size={20} className="mr-2" />
-              Save Changes
-            </button>
-            <button
               type="button"
               onClick={onClose}
               className="flex items-center justify-center px-[15px] py-[5px] bg-[#F4F4F4] text-[#333333] font-semibold rounded-[9px] hover:bg-[#D4D4D4] focus:outline-none focus:ring-2 focus:ring-[#F4F4F4]"
             >
               <HiMiniXMark size={20} className="mr-2" />
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex items-center justify-center px-[15px] py-[5px] bg-[#C84B2F] text-white font-semibold rounded-[9px] hover:bg-[#C63F21] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
+            >
+              <HiInboxArrowDown size={20} className="mr-2" />
+              Save Changes
             </button>
           </div>
         </form>
@@ -230,5 +230,6 @@ const SelectField = ({
     />
   </div>
 );
+
 
 export default EditPassenger;
