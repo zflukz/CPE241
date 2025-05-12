@@ -70,8 +70,8 @@ exports.getTop3RoutesRevenue = async () => {
       SELECT 
         f.source,
         f.destination,
-        a1.airportLabel AS sourceLabel,
-        a2.airportLabel AS destinationLabel,
+        a1.code AS sourceLabel,
+        a2.code AS destinationLabel,
         CONCAT(a1.airportLabel, ' → ', a2.airportLabel) AS route,
         SUM(p.amount) AS totalRevenue
       FROM Flights f
