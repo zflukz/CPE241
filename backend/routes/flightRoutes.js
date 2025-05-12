@@ -10,7 +10,7 @@ router.get('/search/price', flightController.searchByPrice);
 router.delete('/:id', flightController.deleteFlight);
 router.get('/overview',flightController.flightInformation);
 router.get('/overview/:flightID',flightController.flightInformationByID);
-router.delete('/:flightID',flightflightController.deleteFlightByID);
+router.delete('/:flightID',flightController.deleteFlight);
 router.put('/:flightID', flightController.updateFlight);
 
 module.exports = router;
