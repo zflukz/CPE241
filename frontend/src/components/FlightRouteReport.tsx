@@ -92,7 +92,7 @@ const FlightRouteReport: React.FC<BookingRevenueReportProps> = ({ startDate, end
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-gray-400 mx-[200px]">
+      <div className="overflow-x-auto rounded-xl border border-gray-400 mx-[100px]">
         <table className="w-full text-center border-collapse">
           <thead className="bg-gray-100">
             <tr className="text-sm font-semibold">

@@ -3,6 +3,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import ContentPage from "./pages/ContentPage";
 import BookingHistory from "./pages/BookingHistory";
 import Bpass from "./pages/BPass";
@@ -71,6 +72,7 @@ const App: React.FC = () => {
         <Route path="/booking-history" element={<BookingHistory />} />    
         <Route path="/Home" element={<HompPage />} />    
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/content" element={<ContentPage />} />
         <Route path="/manageflight" element={<ManageFlightPage />} />
         <Route path="/managebooking" element={<ManageBookings />} />

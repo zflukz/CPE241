@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/Usercontext";
 const Login: React.FC = () => {
   const { setUser } = useUser();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -13,28 +13,28 @@ const Login: React.FC = () => {
     e.preventDefault();
     try {
       const response = await fetch('http://localhost:8000/api/users/login', {
-        method: 'POST', 
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-      }); 
-      
+      });
+
       console.log(JSON.stringify({ email, password }));
       if (!response.ok) {
         alert('Login failed. Please check your credentials.');
         throw new Error('Network response was not ok');
       }
-      
+
       const data = await response.json();
       console.log('Login successful:', data);
       setUser({
-                id: data.userID,
-                name: data.username,
-                email: data.email,
-                role: data.role
-              });
-      if(data.role == "admin")
+        id: data.userID,
+        name: data.username,
+        email: data.email,
+        role: data.role
+      });
+      if (data.role == "admin")
         navigate('/dashboard');
       else
         navigate('/Home');
@@ -49,22 +49,22 @@ const Login: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <div className="flex justify-center mb-4">
+
+        <div className="flex justify-center mb-4 items-center">
           {/* Chicken logo */}
-          <div className="text-4xl text-orange-500">
-            <span role="img" aria-label="chicken">🐔</span>
+          <div className="text-4xl">
+            <img src='/images/logo/logo.png' className=''></img>
           </div>
+          <h2 className='font-bold text-[#C84B2F] text-[40px] ml-2'>Login</h2>
         </div>
-        
-        <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">Login</h2>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-600 mb-2">Email</label>
+            <label htmlFor="email" className="block text-gray-600 mb-2 font-bold">Email</label>
             <input
               type="email"
               id="email"
-              className="w-full p-3 border border-gray-300 rounded-md"
+              className="w-full p-3 border border-black rounded-md"
               placeholder="Enter Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -72,11 +72,11 @@ const Login: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-600 mb-2">Password</label>
+            <label htmlFor="password" className="block text-gray-600 mb-2 font-bold">Password</label>
             <input
               type="password"
               id="password"
-              className="w-full p-3 border border-gray-300 rounded-md"
+              className="w-full p-3 border border-black rounded-md"
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -99,14 +99,19 @@ const Login: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-orange-500 text-white p-3 rounded-md hover:bg-orange-600 transition duration-300"
+            className="w-full bg-[#E3956D] text-white p-3 rounded-md hover:bg-orange-600 transition duration-300 border border-black"
           >
             Login
           </button>
         </form>
 
         <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">Don't have an account? <a href="#" className="text-blue-600 hover:underline">Register</a></p>
+          <p className="text-sm text-gray-600">Don't have an account? <span
+  onClick={() => navigate('/register')}
+  className="text-blue-600 hover:underline cursor-pointer"
+>
+  Register
+</span></p>
         </div>
 
         <div className="flex items-center justify-center mt-6">
@@ -115,9 +120,9 @@ const Login: React.FC = () => {
         </div>
 
         <button
-          className="w-full bg-white border border-gray-300 p-3 rounded-md flex items-center justify-center mt-6 hover:bg-gray-50 transition duration-300"
+          className="w-full bg-white border border-black p-3 rounded-md flex items-center justify-center mt-6 hover:bg-gray-50 transition duration-300"
         >
-          <img src="https://upload.wikimedia.org/wikipedia/commons/7/75/Google_icon_%28gray%29.svg" alt="Google" className="w-5 h-5 mr-3" />
+          <img src="/images/logo/google.png" alt="Google" className="w-5 h-5 mr-3" />
           <span>Continue with Google</span>
         </button>
       </div>
