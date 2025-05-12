@@ -177,30 +177,123 @@ exports.flightInformationByID = async (flightID) => {
 };
 
 
-exports.updateFlight = async (flightID, data) => {
+// exports.updateFlight = async (flightID, data) => {
+//   const {
+//     label,
+//     source,             // airportID
+//     destination,        // airportID
+//     departTime,
+//     arrivalTime,
+//     availableSeats,
+//     price,
+//     seat,               
+//     flightStatus,       
+//     inflightServices,   
+//     gateID,
+//     terminalID,
+//     airportID,
+//     airlineID,
+//     carryOnWeight,             
+//     checkedBaggageWeight,     
+//     checkedBaggagePrice        
+//   } = data;
+
+//   //  Update Flight
+//   await db.execute(`
+//     UPDATE Flights SET
+//       label = ?,
+//       source = ?,
+//       destination = ?,
+//       departTime = ?,
+//       arrivalTime = ?,
+//       availableSeats = ?,
+//       price = ?,
+//       seat = ?,
+//       flightStatus = ?
+//     WHERE flightID = ?
+//   `, [
+//     label,
+//     source,
+//     destination,
+//     departTime,
+//     arrivalTime,
+//     availableSeats,
+//     price,
+//     seat,
+//     flightStatus,
+//     flightID
+//   ]);
+
+//   //  Update FlightFacilities
+//   // ดึงค่า flightFacilityID ล่าสุด
+//   const [rows] = await db.execute(`SELECT flightFacilityID FROM FlightFacilities ORDER BY flightFacilityID DESC LIMIT 1`);
+//   let lastID = rows.length > 0 ? rows[0].flightFacilityID : "FF000";
+
+//   // ดึงเลขท้าย +1
+//   let counter = parseInt(lastID.replace("FF", ""), 10);
+
+//   await db.execute(`DELETE FROM FlightFacilities WHERE flightID = ?`, [flightID]);
+
+//   for (const service of inflightServices) {
+//     counter++;
+//     const newID = "FF" + String(counter).padStart(3, "0"); // เช่น FF001, FF002
+
+//     await db.execute(
+//       `INSERT INTO FlightFacilities (flightFacilityID, flightID, facility) VALUES (?, ?, ?)`,
+//       [newID, flightID, service]
+//     );
+//   }
+//   //------------------------------------------------------------------------------------------------------------//
+
+//   // Update Airline ที่เชื่อม flight
+//   await db.execute(
+//     `UPDATE Airlines SET airlineID = ? WHERE flightID = ?`,
+//     [airlineID, flightID]
+//   );
+
+//   //  Update Gate -> Terminal -> Airport
+//   await db.execute(
+//     `UPDATE Gates SET terminalID = ? WHERE gateID = ?`,
+//     [terminalID, gateID]
+//   );
+
+//   await db.execute(
+//     `UPDATE Terminals SET airportID = ? WHERE terminalID = ?`,
+//     [airportID, terminalID]
+//   );
+
+//   //  Update BaggageOptions (carryOn & checked)
+//   await db.execute(`
+//     UPDATE BaggageOptions
+//     SET weight = ?
+//     WHERE airlineID = ? AND baggageOptionID = ?
+//   `, [carryOnWeight, airlineID, `${flightID}-carryOn`]);
+
+//   await db.execute(`
+//     UPDATE BaggageOptions
+//     SET weight = ?, price = ?
+//     WHERE airlineID = ? AND baggageOptionID = ?
+//   `, [checkedBaggageWeight, checkedBaggagePrice, airlineID, `${flightID}-checked`]);
+// };
+
+
+exports.updateFlight = async (flightID, flightData) => {
   const {
     label,
-    source,             // airportID
-    destination,        // airportID
+    source,
+    destination,
     departTime,
     arrivalTime,
     availableSeats,
     price,
-    seat,               
-    flightStatus,       
-    inflightServices,   
-    gateID,
-    terminalID,
-    airportID,
-    airlineID,
-    carryOnWeight,             
-    checkedBaggageWeight,     
-    checkedBaggagePrice        
-  } = data;
+    seat,
+    flightStatus,
+    flightFacilityID
+  } = flightData;
 
-  //  Update Flight
-  await db.execute(`
-    UPDATE Flights SET
+  await db.query(`
+    UPDATE Flights
+    SET
       label = ?,
       source = ?,
       destination = ?,
@@ -209,7 +302,8 @@ exports.updateFlight = async (flightID, data) => {
       availableSeats = ?,
       price = ?,
       seat = ?,
-      flightStatus = ?
+      flightStatus = ?,
+      flightFacilityID = ?
     WHERE flightID = ?
   `, [
     label,
@@ -221,60 +315,7 @@ exports.updateFlight = async (flightID, data) => {
     price,
     seat,
     flightStatus,
+    flightFacilityID,
     flightID
   ]);
-
-  //  Update FlightFacilities
-  // ดึงค่า flightFacilityID ล่าสุด
-  const [rows] = await db.execute(`SELECT flightFacilityID FROM FlightFacilities ORDER BY flightFacilityID DESC LIMIT 1`);
-  let lastID = rows.length > 0 ? rows[0].flightFacilityID : "FF000";
-
-  // ดึงเลขท้าย +1
-  let counter = parseInt(lastID.replace("FF", ""), 10);
-
-  await db.execute(`DELETE FROM FlightFacilities WHERE flightID = ?`, [flightID]);
-
-  for (const service of inflightServices) {
-    counter++;
-    const newID = "FF" + String(counter).padStart(3, "0"); // เช่น FF001, FF002
-
-    await db.execute(
-      `INSERT INTO FlightFacilities (flightFacilityID, flightID, facility) VALUES (?, ?, ?)`,
-      [newID, flightID, service]
-    );
-  }
-  //------------------------------------------------------------------------------------------------------------//
-
-  // Update Airline ที่เชื่อม flight
-  await db.execute(
-    `UPDATE Airlines SET airlineID = ? WHERE flightID = ?`,
-    [airlineID, flightID]
-  );
-
-  //  Update Gate -> Terminal -> Airport
-  await db.execute(
-    `UPDATE Gates SET terminalID = ? WHERE gateID = ?`,
-    [terminalID, gateID]
-  );
-
-  await db.execute(
-    `UPDATE Terminals SET airportID = ? WHERE terminalID = ?`,
-    [airportID, terminalID]
-  );
-
-  //  Update BaggageOptions (carryOn & checked)
-  await db.execute(`
-    UPDATE BaggageOptions
-    SET weight = ?
-    WHERE airlineID = ? AND baggageOptionID = ?
-  `, [carryOnWeight, airlineID, `${flightID}-carryOn`]);
-
-  await db.execute(`
-    UPDATE BaggageOptions
-    SET weight = ?, price = ?
-    WHERE airlineID = ? AND baggageOptionID = ?
-  `, [checkedBaggageWeight, checkedBaggagePrice, airlineID, `${flightID}-checked`]);
 };
-
-
-

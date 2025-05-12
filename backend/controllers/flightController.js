@@ -80,14 +80,28 @@ exports.flightInformationByID = async (req, res) => {
 
 
 
+// exports.updateFlight = async (req, res) => {
+//   const flightID = req.params.id;
+//   const flightData = req.body;
+//   try {
+//     const result = await updateFlightService(flightID, flightData);
+//     res.status(200).json(result);
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+
+
 exports.updateFlight = async (req, res) => {
-  const flightID = req.params.id;
-  const flightData = req.body;
   try {
-    const result = await updateFlightService(flightID, flightData);
-    res.status(200).json(result);
+    const { flightID } = req.params;
+    const flightData = req.body;
+
+    await flightService.updateFlight(flightID, flightData);
+    res.status(200).json({ message: 'Flight updated successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Error updating flight:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
-
