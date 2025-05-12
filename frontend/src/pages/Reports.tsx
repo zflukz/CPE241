@@ -9,8 +9,8 @@ import CancellationsReport from "../components/CancellationsReport";
 
 const ReportsPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState("Booking & Revenue Summary");
-    const [startDate, setStartDate] = useState("2025-03-01");
-    const [endDate, setEndDate] = useState("2025-03-30");
+    const [startDate, setStartDate] = useState("2025-05-01");
+    const [endDate, setEndDate] = useState("2025-05-30");
 
     return (
         <div className="flex">
@@ -49,10 +49,10 @@ const ReportsPage: React.FC = () => {
                     </div>
 
                     {/* Bottom section */}
-                    {activeTab === "Booking & Revenue Summary" && <BookingRevenueReport />}
-                    {activeTab === "Flight Route Performance" && <FlightRouteReport />}
-                    {activeTab === "Airline Revenue Breakdown" && <AirlineRevenueReport />}
-                    {activeTab === "Cancellations" && <CancellationsReport />}
+                    {activeTab === "Booking & Revenue Summary" && <BookingRevenueReport startDate={startDate} endDate={endDate} />}
+                    {activeTab === "Flight Route Performance" && <FlightRouteReport startDate={startDate} endDate={endDate} />}
+                    {activeTab === "Airline Revenue Breakdown" && <AirlineRevenueReport startDate={startDate} endDate={endDate} />}
+                    {activeTab === "Cancellations" && <CancellationsReport startDate={startDate} endDate={endDate} />}
                 </div>
             </div>
         </div>

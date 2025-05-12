@@ -2,9 +2,55 @@ import React from "react";
 import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 import { flightRouteData, flightRouteStats } from "../data/mockDashboardData";
 import FlightPath from "../components/Route";
+import { useEffect } from "react";
+import { useState } from "react";
+interface BookingRevenueReportProps {
+  startDate: string;
+  endDate: string;
+}
+interface FlightPerformance {
+  origin: string;
+  destination: string;
+  total: number;
+  completed: number;
+  canceledRate: string;
+  loadFactor: string;
+  revenue: string;
+}
+const FlightRouteReport: React.FC<BookingRevenueReportProps> = ({ startDate, endDate }) => {
+  const [flightRouteData, setFlightRouteData] = useState<FlightPerformance[]>([]);
 
+  useEffect(() => {
+    const fetchFlightRouteData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/admins/flightRouteReport?startDate=${startDate}&endDate=${endDate}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch flight route data");
 
-const FlightRouteReport: React.FC = () => {
+        const json = await response.json();
+
+        // Mapping the response data to match the FlightPerformance interface
+        const mappedData: FlightPerformance[] = json.map((item: any) => {
+          return {
+            origin: item.sourceAirport,            // sourceAirport
+            destination: item.destinationAirport,  // destinationAirport
+            total: item.totalFlights,              // totalFlights
+            completed: 0,                          // No completed data in the response, setting it to 0 (default)
+            canceledRate: item.cancelRatePercent,  // cancelRatePercent
+            loadFactor: item.loadFactorPercent,    // loadFactorPercent
+            revenue: item.totalRevenue,            // totalRevenue (string type)
+          };
+        });
+
+        setFlightRouteData(mappedData);
+      } catch (err) {
+        console.error("Error fetching flight route data", err);
+      }
+    };
+
+    fetchFlightRouteData();
+  }, [startDate, endDate]);
   return (
     <div className="bg-white p-4 rounded-xl shadow">
       {/* Header */}

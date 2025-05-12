@@ -1,8 +1,56 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 import { cancellationStats, cancellationData } from "../data/mockDashboardData";
+import { useState } from "react";
+interface BookingRevenueReportProps {
+  startDate: string;
+  endDate: string;
+}
+interface BackendCancellationData {
+  date: string; // ISO string
+  totalTickets: number;
+  cancelledTickets: string;
+  cancelledPrice: string;
+  totalPrice: string;
+  cancelRate: string;
+  percentOfTotalCancellations: string;
+}
+interface CancellationData {
+  date: string; // formatted, e.g., "March 1, 2025"
+  totalCanceledTickets: number;
+  revenue: string;
+  percentOfTotal: string;
+  canceledRate: string;
+  revenueLoss: string;
+}
+const CancellationsReport: React.FC<BookingRevenueReportProps> = ({ startDate, endDate }) => {
+    const [cancellationData, setCancellationData] = useState<CancellationData[]>([]);
+    const transformCancellationData = (
+  raw: BackendCancellationData[]
+): CancellationData[] => {
+  return raw.map((item) => ({
+    date: new Date(item.date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
+    totalCanceledTickets: Number(item.cancelledTickets),
+    revenue: Number(item.totalPrice).toLocaleString(),
+    percentOfTotal: item.percentOfTotalCancellations,
+    canceledRate: item.cancelRate,
+    revenueLoss: Number(item.cancelledPrice).toLocaleString(),
+  }));
+};
+   useEffect(() => {
+  const fetchData = async () => {
+    const response = await fetch(`http://localhost:8000/api/admins/cancelticketReport?startDate=${startDate}&endDate=${endDate}`);
+    const data: BackendCancellationData[] = await response.json();
+    const formatted = transformCancellationData(data);
+    setCancellationData(formatted);
+  };
 
-const CancellationsReport: React.FC = () => {
+  fetchData();
+}, [startDate, endDate]);
     return (
         <div className="bg-white p-4 rounded-xl shadow">
             {/* Header */}
