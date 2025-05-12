@@ -77,3 +77,17 @@ exports.flightInformationByID = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+
+exports.updateFlight = async (req, res) => {
+  const flightID = req.params.id;
+  const flightData = req.body;
+  try {
+    const result = await updateFlightService(flightID, flightData);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

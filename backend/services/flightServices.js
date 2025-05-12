@@ -32,3 +32,13 @@ exports.flightInformation = async() =>{
 exports.flightInformationByID = async(flightID) =>{
   return await flightRepo.flightInformationByID(flightID);
 };
+
+exports.updateFlightService = async (flightID, updateData) => {
+  try {
+    await flightRepo.updateFlight(flightID, updateData);
+    return { success: true, message: "Flight updated successfully." };
+  } catch (error) {
+    console.error("Update flight error:", error);
+    throw new Error("Failed to update flight.");
+  }
+};
