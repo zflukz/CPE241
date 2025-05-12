@@ -248,13 +248,11 @@ exports.updateFlight = async (flightID, data) => {
   for (const service of inflightServices) {
     counter++;
     const newID = "FF" + String(counter).padStart(3, "0"); // เช่น FF001, FF002
-
     await db.execute(
       `INSERT INTO FlightFacilities (flightFacilityID, flightID, facility) VALUES (?, ?, ?)`,
       [newID, flightID, service]
     );
   }
-  //------------------------------------------------------------------------------------------------------------//
 
   // Update Airline ที่เชื่อม flight
   await db.execute(
