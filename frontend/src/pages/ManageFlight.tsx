@@ -11,6 +11,7 @@ import FlightPath from '../components/Route';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 interface Flight {
+  flightID :string;
   label: string;
   airlineID: string;
   source: string;
@@ -111,6 +112,7 @@ const ManageFlights = () => {
         });
 
         return {
+          flightID: item.flightID,
           label: item.label,
           airlineID: item.airlineID,
           source: item.source,
