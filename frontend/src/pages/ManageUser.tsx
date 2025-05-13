@@ -71,7 +71,7 @@ const ManageUsers = () => {
 
   const handleUpdateUser = async (updatedUser: User | null) => {
   if (!updatedUser) return handleCloseModal();
-console.log(updatedUser);
+console.log(JSON.stringify(updatedUser));
   try {
     const response = await fetch(`http://localhost:8000/api/users/users/edit/${updatedUser.userID}`, {
       method: 'PUT',
