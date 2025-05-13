@@ -5,6 +5,7 @@ interface User {
   userID: string;
   username: string;
   email: string;
+  password : string;
   role: 'superAdmin' | 'admin' | 'person';
 }
 
@@ -47,6 +48,17 @@ const EditUser: FC<EditUserProps> = ({ user, onUpdateUser }) => {
           type="email"
           name="email"
           value={formData.email}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium">Password</label>
+        <input
+          type="text"
+          name="password"
+          value={formData.password}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
         />

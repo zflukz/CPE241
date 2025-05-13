@@ -31,7 +31,7 @@ exports.getBookingData = async (userID) => {
 
 exports.updateUser = async (userID, userData) => {
     const { username, password, email, role } = userData;
-    return await userRepository.updateUser(userID, username, password, email, role);
+    return await userRepo.updateUser(userID, username, password, email, role);
   };
 
 exports.getUserList = async () => {

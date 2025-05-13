@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import TopNavbar from '../components/TopNavbar-AfterLogin';
 import { FaRegCalendarAlt } from 'react-icons/fa';
-import { useNavigate,useLocation } from "react-router-dom";
-import {Flight} from './FlightType';
+import { useNavigate, useLocation } from "react-router-dom";
+import { Flight } from './FlightType';
 import { useUser } from '../context/Usercontext';
 type ReservationProps = {
   passengerCount?: number; // optional
@@ -18,8 +18,8 @@ interface Passenger {
   passport: string;
   countryIssue: string;
   passportExpired: string;
-  sex : string;
-  phonenumber : string;
+  sex: string;
+  phonenumber: string;
 }
 
 export default function ReservationPage({
@@ -27,9 +27,9 @@ export default function ReservationPage({
   flightClass = 'Economy',
 }: ReservationProps) {
   const location = useLocation();
-  const state = location.state as { booked: { userID: string;flightID: string;bookingDate: string;bookingStatus: 'confirmed' | 'pending' | 'canceled'; }[],flight :Flight };
+  const state = location.state as { booked: { userID: string; flightID: string; bookingDate: string; bookingStatus: 'confirmed' | 'pending' | 'canceled'; }[], flight: Flight };
   const navigate = useNavigate();
-    
+
   const [passengers, setPassengers] = useState<Passenger[]>(
     Array.from({ length: passengerCount }, () => ({
       firstName: '',
@@ -40,7 +40,7 @@ export default function ReservationPage({
       countryIssue: '',
       passportExpired: '',
       phonenumber: '',
-      sex : ''
+      sex: ''
     }))
   );
 
@@ -59,16 +59,18 @@ export default function ReservationPage({
       userID: user.user?.id,
       flightID: state.booked[0].flightID,
       bookingDate: new Date().toISOString()
-      .replace('T', ' ')
-      .replace(/\.\d{3}Z$/, ''),
+        .replace('T', ' ')
+        .replace(/\.\d{3}Z$/, ''),
       bookingStatus: 'pending',
       passengers,
     };
-    navigate('/Loading', { state: {
-      bookingData,
-      passengers,
-      flight: state.flight,
-    }});
+    navigate('/Loading', {
+      state: {
+        bookingData,
+        passengers,
+        flight: state.flight,
+      }
+    });
   };
 
   return (
@@ -79,114 +81,114 @@ export default function ReservationPage({
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="text-lg font-semibold mb-[15px]"> Passenger(s) Detail</h2>
-            
+
             {[...Array(passengerCount).keys()].map(index => index + 1).map((index) => (
-              <div key={index}  className="">
+              <div key={index} className="">
                 <h3 className={`text-md font-semibold text-black bg-[#C84B2F]/20 -mx-6 px-6 py-3 ${index === 1 ? 'rounded-b-none' : 'mt-6'}`}>
                   Passenger {index}
                 </h3>
 
-                
+
                 {index === 1 && (
                   <div className="bg-[#F3DA37]/10 py-[15px] px-[20px] border-l-4 border-[#F4BA4E] text-sm -mx-6 flex items-start gap-3">
-                  <div className="bg-[#F3DA37]/10 rounded-full p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 text-[#F3DA37]">
-                      <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
-                    </svg>
+                    <div className="bg-[#F3DA37]/10 rounded-full p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 text-[#F3DA37]">
+                        <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+
+                    <div>
+                      <strong>Please pay attention for the following:</strong><br />
+                      Because you travel/transit internationally, you must input your name exactly as stated in your passport.<br />
+                      If not, the airline may refuse you to board or charge additional fees for name change.
+                    </div>
                   </div>
-                
-                  <div>
-                    <strong>Please pay attention for the following:</strong><br />
-                    Because you travel/transit internationally, you must input your name exactly as stated in your passport.<br />
-                    If not, the airline may refuse you to board or charge additional fees for name change.
-                  </div>
-                </div>
-                
+
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[30px]">
                   <div>
-                  First Name (without title and punctuation)<br />
-                  <input className="input mt-4  border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="First Name"   
-                  style={{width:'326px', height:'40px', padding:'15px'}} 
-                  onChange={(e) => handleInputChange(index-1, 'firstName', e.target.value)}
-                  />
+                    First Name (without title and punctuation)<br />
+                    <input className="input mt-4  border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="First Name"
+                      style={{ width: '326px', height: '40px', padding: '15px' }}
+                      onChange={(e) => handleInputChange(index - 1, 'firstName', e.target.value)}
+                    />
                   </div>
 
                   <div>
-                  Last Name (without title and punctuation)<br />
-                  <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Last Name"  
-                  style={{width:'326px', height:'40px', padding:'15px'}} 
-                  onChange={(e) => handleInputChange(index-1, 'lastName', e.target.value)}
-                  />
+                    Last Name (without title and punctuation)<br />
+                    <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Last Name"
+                      style={{ width: '326px', height: '40px', padding: '15px' }}
+                      onChange={(e) => handleInputChange(index - 1, 'lastName', e.target.value)}
+                    />
                   </div>
 
                   <div>
-                  Date of Birth<br />
-                  <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Date of Birth" type="date" 
-                  style={{width:'326px', height:'40px', padding:'15px', }}
-                  onChange={(e) => handleInputChange(index-1, 'birth', e.target.value)}
-                  />
+                    Date of Birth<br />
+                    <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Date of Birth" type="date"
+                      style={{ width: '326px', height: '40px', padding: '15px', }}
+                      onChange={(e) => handleInputChange(index - 1, 'birth', e.target.value)}
+                    />
                   </div>
 
                   <div>
                     Nationality<br />
-                  <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F] " placeholder="Nationality" 
-                  style={{ width:'326px', height:'40px', padding:'15px', }} 
-                  onChange={(e) => handleInputChange(index-1, 'nationality', e.target.value)}
-                  >
-                    
-                  </input>
+                    <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F] " placeholder="Nationality"
+                      style={{ width: '326px', height: '40px', padding: '15px', }}
+                      onChange={(e) => handleInputChange(index - 1, 'nationality', e.target.value)}
+                    >
+
+                    </input>
                   </div>
 
                   <div>
-                  Passport Number
-                  <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Passport Number" 
-                  style={{width:'326px', height:'40px', padding:'15px', }} 
-                  onChange={(e) => handleInputChange(index-1, 'passport', e.target.value)}
-                  />
+                    Passport Number
+                    <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Passport Number"
+                      style={{ width: '326px', height: '40px', padding: '15px', }}
+                      onChange={(e) => handleInputChange(index - 1, 'passport', e.target.value)}
+                    />
                   </div>
 
                   <div>
-                  Country of Issue
-                  <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Country of Issue" 
-                  style={{width:'326px', height:'40px', padding:'15px', }} onChange={(e) => handleInputChange(index-1, 'countryIssue', e.target.value)} />
+                    Country of Issue
+                    <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Country of Issue"
+                      style={{ width: '326px', height: '40px', padding: '15px', }} onChange={(e) => handleInputChange(index - 1, 'countryIssue', e.target.value)} />
                   </div>
 
                   <div>
-                  Passport Expiry Date
-                  <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Date of Birth" type="date" 
-                  style={{marginBottom: '15px', width:'326px', height:'40px', padding:'15px', }} onChange={(e) => handleInputChange(index-1, 'passportExpired', e.target.value)} 
-                  />
+                    Passport Expiry Date
+                    <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="Date of Birth" type="date"
+                      style={{ marginBottom: '15px', width: '326px', height: '40px', padding: '15px', }} onChange={(e) => handleInputChange(index - 1, 'passportExpired', e.target.value)}
+                    />
                   </div>
                   <div>
-                  PhoneNumber<br />
-                  <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="PhoneNumber"  
-                  style={{width:'326px', height:'40px', padding:'15px'}} 
-                  onChange={(e) => handleInputChange(index-1, 'phonenumber', e.target.value)}
-                  />
+                    PhoneNumber<br />
+                    <input className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]" placeholder="PhoneNumber"
+                      style={{ width: '326px', height: '40px', padding: '15px' }}
+                      onChange={(e) => handleInputChange(index - 1, 'phonenumber', e.target.value)}
+                    />
                   </div>
                   <div>
-                  Gender<br />
-                  <select
-                    className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
-                    style={{ width: '326px', height: '40px', padding: '10px' }}
-                    onChange={(e) => handleInputChange(index-1, 'sex', e.target.value)}
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
+                    Gender<br />
+                    <select
+                      className="input mt-4 border-[1.5px] border-[#F7F7F7] rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#C84B2F]"
+                      style={{ width: '326px', height: '40px', padding: '10px' }}
+                      onChange={(e) => handleInputChange(index - 1, 'sex', e.target.value)}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Baggage */}
-          <div className="bg-white rounded-xl shadow p-6">
-          <div className="flex items-center mb-[20px]">
+          {/* <div className="bg-white rounded-xl shadow p-6">
+            <div className="flex items-center mb-[20px]">
 
               <div className="grid place-items-center w-12 h-12 rounded-full border border-[#D4D4D4] p-[6px]">
                 <i className="fi fi-rr-shopping-bag-add text-black text-[20px] leading-none"></i>
@@ -200,19 +202,19 @@ export default function ReservationPage({
 
             <div className="flex flex-wrap gap-[15px]">
               <div className="border border-[#D4D4D4] rounded-[10px] bg-[#F7F7F7] px-[15px] py-[10px] w-fit">
-                1. DMK → ICN <br />    
+                1. DMK → ICN <br />
                 <div className='text-[#939393] flex items-center'>
                   <i className="fi fi-rr-shopping-bag pr-[15px] leading-none"></i>
                   0kg/pax
-                </div>           
+                </div>
               </div>
 
               <div className="border border-[#D4D4D4] rounded-[10px] bg-[#F7F7F7] px-[15px] py-[10px] w-fit">
-                2. ICN → DMK <br />    
+                2. ICN → DMK <br />
                 <div className='text-[#939393] flex items-center'>
                   <i className="fi fi-rr-shopping-bag pr-[15px] leading-none "></i>
                   0kg/pax
-                </div>           
+                </div>
               </div>
 
             </div>
@@ -226,7 +228,7 @@ export default function ReservationPage({
               </button>
             </div>
 
-          </div>
+          </div> */}
 
           <button className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg mt-4" onClick={handleClick} >Continue</button>
         </div>
@@ -265,7 +267,7 @@ export default function ReservationPage({
       </div>
     </div>
   );
-} 
+}
 
 // CSS (Tailwind is assumed. If you're using a regular CSS setup, define a .input class accordingly.)
 // .input {

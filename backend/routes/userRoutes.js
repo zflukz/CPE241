@@ -12,7 +12,7 @@ router.get('/booking/:userID', userController.getBooking);
 
 
 //ADMIN 
-router.put('/users/edit', userController.updateUser);
+router.put('/users/edit/:userID', userController.updateUser);
 router.get('/users/list', userController.userList);
 
 module.exports = router;

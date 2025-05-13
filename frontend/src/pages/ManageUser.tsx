@@ -14,22 +14,13 @@ interface User {
   userID: string;
   username: string;
   email: string;
+  password: string;
   role: 'superAdmin' | 'admin' | 'person';
 }
 
 const ManageUsers = () => {
   const [users, setUsers] = useState<User[]>([
-    { userID: 'U001', username: 'user001', email: 'yourname@gmail.com', role: 'person' },
-    { userID: 'U002', username: 'user002', email: 'yourname@gmail.com', role: 'person' },
-    { userID: 'U003', username: 'user003', email: 'yourname@gmail.com', role: 'admin' },
-    { userID: 'U004', username: 'user004', email: 'yourname@gmail.com', role: 'person' },
-    { userID: 'U005', username: 'user005', email: 'yourname@gmail.com', role: 'person' },
-    { userID: 'U006', username: 'user006', email: 'yourname@gmail.com', role: 'admin' },
-    { userID: 'U007', username: 'user007', email: 'yourname@gmail.com', role: 'person' },
-    { userID: 'U008', username: 'user008', email: 'yourname@gmail.com', role: 'person' },
-    { userID: 'U009', username: 'user009', email: 'yourname@gmail.com', role: 'person' },
-    { userID: 'U010', username: 'user010', email: 'yourname@gmail.com', role: 'person' },
-    { userID: 'U011', username: 'user011', email: 'yourname@gmail.com', role: 'admin' },
+    
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,6 +45,7 @@ const ManageUsers = () => {
             userID: item.userID,
             username: item.username,
             email :item.email,
+            password : item.password,
             role : item.role
           }));
           // console.log("AirportOption",airportOptions);
@@ -79,9 +71,9 @@ const ManageUsers = () => {
 
   const handleUpdateUser = async (updatedUser: User | null) => {
   if (!updatedUser) return handleCloseModal();
-
+console.log(updatedUser);
   try {
-    const response = await fetch(`http://localhost:8000/api/users/${updatedUser.userID}`, {
+    const response = await fetch(`http://localhost:8000/api/users/users/edit/${updatedUser.userID}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedUser),
