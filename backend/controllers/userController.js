@@ -50,9 +50,9 @@ exports.getBooking = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const userID = req.params.userID;
+    const userID = req.params.id;
     const userData = req.body;
-    // console.log("Data Backend",userID);
+
     const success = await userService.updateUser(userID, userData);
 
     if (success) {
